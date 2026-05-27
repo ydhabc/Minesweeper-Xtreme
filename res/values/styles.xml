@@ -1,0 +1,48 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="android:Theme.Holo.Light.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:fontFamily">sans</item>
+    </style>
+
+    <style name="XtremeButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:layout_marginTop">14dp</item>
+        <item name="android:background">@drawable/button_bg</item>
+        <item name="android:textColor">@color/textWarm</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="QuietButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:background">@drawable/quiet_button_bg</item>
+        <item name="android:textColor">@color/textWarm</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="SmallButton">
+        <item name="android:layout_width">96dp</item>
+        <item name="android:layout_height">42dp</item>
+        <item name="android:background">@drawable/quiet_button_bg</item>
+        <item name="android:textColor">@color/textWarm</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="ResultPeekButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">34dp</item>
+        <item name="android:background">@drawable/result_peek_button_bg</item>
+        <item name="android:textColor">@color/textMuted</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:paddingLeft">14dp</item>
+        <item name="android:paddingRight">14dp</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingBottom">2dp</item>
+    </style>
+
+</resources>
