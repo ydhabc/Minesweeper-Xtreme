@@ -9,6 +9,10 @@ import java.util.Random;
 final class GameEngine {
     static final int SIZE = 7;
 
+    private static final int MAX_GENERATE_ATTEMPTS = 300;
+    private static final long FAST_STEP_BONUS_MILLIS = 10000L;
+    private static final int FAST_STEP_BONUS_SCORE = 15;
+
     private static final int[] DR = {-1, -1, -1, 0, 0, 1, 1, 1};
     private static final int[] DC = {-1, 0, 1, -1, 1, -1, 0, 1};
 
@@ -75,27 +79,41 @@ final class GameEngine {
         if (gameOver || paused || !inBounds(r, c) || flagged[r][c] || revealed[r][c] || skippedMine[r][c]) {
             return result;
         }
+        boolean wasGenerated = generated;
         if (!generated) {
-            generate(r, c);
+            if (!generate(r, c)) {
+                clearMines();
+                message = "当前首点无法生成合法地图，请换一格重新点击。";
+                return result;
+            }
             generated = true;
             globalStartMillis = now;
             lastStepStartMillis = now;
-        } else {
+        }
+        boolean hasCertainSafe = false;
+        if (wasGenerated) {
             MinesweeperSolver.Result solverResult =
                     MinesweeperSolver.findCertainSafe(mode, makeVisibleBoard(), flagged);
-            if (solverResult.hasCertainSafe() && !solverResult.safe[r][c]) {
+            hasCertainSafe = solverResult.hasCertainSafe();
+            if (expertModeEnabled && hasCertainSafe && !solverResult.safe[r][c]) {
                 boolean[][] displayMines = MinesweeperSolver.findMineMapWithMine(mode, makeVisibleBoard(), r, c);
                 if (displayMines != null) {
                     replaceMines(displayMines);
                 }
-                lose("当前局面存在确定安全格，这一步属于猜测，判负。", now);
+                lose("当前局面存在确定安全格，专家模式不允许猜测，判负。", now);
                 result.lost = true;
                 return result;
             }
         }
 
         if (mines[r][c]) {
+            if (hasCertainSafe) {
+                lose("当前局面存在确定安全格，但点到了雷，判负。", now);
+                result.lost = true;
+                return result;
+            }
             skippedMine[r][c] = true;
+            flagged[r][c] = false;
             combo = 0;
             lastActionMillis = now;
             lastStepStartMillis = now;
@@ -111,13 +129,18 @@ final class GameEngine {
             } else {
                 combo = 1;
             }
-            int gained = opened * 5 * combo;
+            int baseGained = opened * 5 * combo;
+            boolean fastStepBonus = lastStepStartMillis > 0L
+                    && now - lastStepStartMillis <= FAST_STEP_BONUS_MILLIS;
+            int gained = baseGained + (fastStepBonus ? FAST_STEP_BONUS_SCORE : 0);
             score += gained;
             lastActionMillis = now;
             lastStepStartMillis = now;
             result.openedCells = opened;
             result.scoreGained = gained;
-            message = "打开 " + opened + " 格，连击 x" + combo + "，+" + gained + " 分。";
+            message = "打开 " + opened + " 格，连击 x" + combo + "，+" + baseGained + " 分"
+                    + (fastStepBonus ? "，10秒内选择奖励 +" + FAST_STEP_BONUS_SCORE + " 分" : "")
+                    + "。";
         }
         if (isWin()) {
             win(now);
@@ -263,18 +286,31 @@ final class GameEngine {
         }
     }
 
-    private void generate(int firstR, int firstC) {
+    private boolean generate(int firstR, int firstC) {
         boolean[][] safeZone = makeSafeZone(firstR, firstC);
-        if (mode == GameMode.TWO_G) {
-            generateTwoG(safeZone);
-        } else if (mode == GameMode.TWO_D) {
-            generateTwoD(safeZone);
-        } else if (mode == GameMode.TWO_H) {
-            generateTwoH(safeZone);
-        } else {
-            generateNormal(safeZone);
+
+        for (int attempt = 0; attempt < MAX_GENERATE_ATTEMPTS; attempt++) {
+            clearMines();
+
+            boolean success;
+            if (mode == GameMode.TWO_G) {
+                success = generateTwoG(safeZone);
+            } else if (mode == GameMode.TWO_D) {
+                success = generateTwoD(safeZone);
+            } else if (mode == GameMode.TWO_H) {
+                success = generateTwoH(safeZone);
+            } else {
+                success = generateNormal(safeZone);
+            }
+
+            if (success) {
+                computeNumbers();
+                return true;
+            }
         }
-        computeNumbers();
+
+        clearMines();
+        return false;
     }
 
     private boolean[][] makeSafeZone(int firstR, int firstC) {
@@ -290,7 +326,7 @@ final class GameEngine {
         return safeZone;
     }
 
-    private void generateNormal(boolean[][] safeZone) {
+    private boolean generateNormal(boolean[][] safeZone) {
         List<Integer> cells = new ArrayList<Integer>();
         for (int r = 0; r < SIZE; r++) {
             for (int c = 0; c < SIZE; c++) {
@@ -299,60 +335,84 @@ final class GameEngine {
                 }
             }
         }
+        if (cells.size() < mode.mines) {
+            clearMines();
+            return false;
+        }
         Collections.shuffle(cells, random);
         for (int i = 0; i < mode.mines; i++) {
             int cell = cells.get(i).intValue();
             mines[cell / SIZE][cell % SIZE] = true;
         }
+        return true;
     }
 
-    private void generateTwoG(boolean[][] safeZone) {
-        while (true) {
+    private boolean generateTwoG(boolean[][] safeZone) {
+        clearMines();
+
+        List<Integer> blocks = new ArrayList<Integer>();
+        for (int r = 0; r < SIZE - 1; r++) {
+            for (int c = 0; c < SIZE - 1; c++) {
+                if (blockAvoidsSafeZone(r, c, safeZone)) {
+                    blocks.add(Integer.valueOf(r * 6 + c));
+                }
+            }
+        }
+
+        Collections.shuffle(blocks, random);
+
+        int placed = 0;
+        for (int i = 0; i < blocks.size() && placed < 3; i++) {
+            int block = blocks.get(i).intValue();
+            int r = block / 6;
+            int c = block % 6;
+            if (canPlaceBlock(r, c)) {
+                setBlock(r, c, true);
+                placed++;
+            }
+        }
+
+        if (placed == 3) {
+            return true;
+        }
+
+        clearMines();
+        return false;
+    }
+
+    private boolean generateTwoH(boolean[][] safeZone) {
+        try {
+            TwoHGenerator generator = new TwoHGenerator(safeZone);
+            int[] selected = generator.pick();
+
             clearMines();
-            List<Integer> blocks = new ArrayList<Integer>();
-            for (int r = 0; r < SIZE - 1; r++) {
-                for (int c = 0; c < SIZE - 1; c++) {
-                    if (blockAvoidsSafeZone(r, c, safeZone)) {
-                        blocks.add(Integer.valueOf(r * 6 + c));
-                    }
+            for (int r = 0; r < SIZE; r++) {
+                for (int c = 0; c < SIZE; c++) {
+                    mines[r][c] = ((selected[r] >> c) & 1) == 1;
                 }
             }
-            Collections.shuffle(blocks, random);
-            int placed = 0;
-            for (int i = 0; i < blocks.size() && placed < 3; i++) {
-                int block = blocks.get(i).intValue();
-                int r = block / 6;
-                int c = block % 6;
-                if (canPlaceBlock(r, c)) {
-                    setBlock(r, c, true);
-                    placed++;
-                }
-            }
-            if (placed == 3) {
-                return;
-            }
+            return true;
+        } catch (IllegalStateException ignored) {
+            clearMines();
+            return false;
         }
     }
 
-    private void generateTwoH(boolean[][] safeZone) {
-        TwoHGenerator generator = new TwoHGenerator(safeZone);
-        int[] selected = generator.pick();
-        clearMines();
-        for (int r = 0; r < SIZE; r++) {
-            for (int c = 0; c < SIZE; c++) {
-                mines[r][c] = ((selected[r] >> c) & 1) == 1;
-            }
-        }
-    }
+    private boolean generateTwoD(boolean[][] safeZone) {
+        try {
+            TwoDGenerator generator = new TwoDGenerator(safeZone);
+            long selected = generator.pick();
 
-    private void generateTwoD(boolean[][] safeZone) {
-        TwoDGenerator generator = new TwoDGenerator(safeZone);
-        long selected = generator.pick();
-        clearMines();
-        for (int idx = 0; idx < SIZE * SIZE; idx++) {
-            if (((selected >> idx) & 1L) == 1L) {
-                mines[idx / SIZE][idx % SIZE] = true;
+            clearMines();
+            for (int idx = 0; idx < SIZE * SIZE; idx++) {
+                if (((selected >> idx) & 1L) == 1L) {
+                    mines[idx / SIZE][idx % SIZE] = true;
+                }
             }
+            return true;
+        } catch (IllegalStateException ignored) {
+            clearMines();
+            return false;
         }
     }
 
@@ -422,6 +482,7 @@ final class GameEngine {
             if (!inBounds(cr, cc) || revealed[cr][cc] || mines[cr][cc]) {
                 continue;
             }
+            flagged[cr][cc] = false;
             revealed[cr][cc] = true;
             opened++;
             if (numbers[cr][cc] == 0) {
@@ -493,10 +554,7 @@ final class GameEngine {
         final boolean[][] safeZone;
         final List<Integer>[] rowMasks;
         final int[] selected = new int[SIZE];
-        final int[] chosen = new int[SIZE];
-        final int[] minSuffix = new int[SIZE + 1];
-        final int[] maxSuffix = new int[SIZE + 1];
-        int candidates;
+        final long[][] suffixWays = new long[SIZE + 1][GameMode.TWO_H.mines + 1];
 
         @SuppressWarnings("unchecked")
         TwoHGenerator(boolean[][] safeZone) {
@@ -510,51 +568,77 @@ final class GameEngine {
                     }
                 }
             }
-            for (int r = SIZE - 1; r >= 0; r--) {
-                int min = 8;
-                int max = -1;
-                for (int i = 0; i < rowMasks[r].size(); i++) {
-                    int count = Integer.bitCount(rowMasks[r].get(i).intValue());
-                    min = Math.min(min, count);
-                    max = Math.max(max, count);
-                }
-                minSuffix[r] = minSuffix[r + 1] + min;
-                maxSuffix[r] = maxSuffix[r + 1] + max;
-            }
+            buildSuffixWays();
         }
 
         int[] pick() {
-            search(0, 0);
-            if (candidates == 0) {
+            int remainingMines = GameMode.TWO_H.mines;
+            long totalWays = suffixWays[0][remainingMines];
+            if (totalWays <= 0L) {
                 throw new IllegalStateException("No valid 2H board for this first click.");
             }
+
+            for (int row = 0; row < SIZE; row++) {
+                long choice = nextLongBounded(suffixWays[row][remainingMines]);
+                for (int i = 0; i < rowMasks[row].size(); i++) {
+                    int mask = rowMasks[row].get(i).intValue();
+                    int count = Integer.bitCount(mask);
+                    if (count > remainingMines) {
+                        continue;
+                    }
+                    long branchWays = suffixWays[row + 1][remainingMines - count];
+                    if (choice < branchWays) {
+                        selected[row] = mask;
+                        remainingMines -= count;
+                        break;
+                    }
+                    choice -= branchWays;
+                }
+            }
+
             int[] copy = new int[SIZE];
-            System.arraycopy(chosen, 0, copy, 0, SIZE);
+            System.arraycopy(selected, 0, copy, 0, SIZE);
             return copy;
         }
 
-        void search(int row, int minesCount) {
-            if (minesCount + minSuffix[row] > GameMode.TWO_H.mines) {
-                return;
-            }
-            if (minesCount + maxSuffix[row] < GameMode.TWO_H.mines) {
-                return;
-            }
-            if (row == SIZE) {
-                if (minesCount == GameMode.TWO_H.mines) {
-                    candidates++;
-                    if (random.nextInt(candidates) == 0) {
-                        System.arraycopy(selected, 0, chosen, 0, SIZE);
+        private void buildSuffixWays() {
+            suffixWays[SIZE][0] = 1L;
+            for (int row = SIZE - 1; row >= 0; row--) {
+                for (int remaining = 0; remaining <= GameMode.TWO_H.mines; remaining++) {
+                    long total = 0L;
+                    for (int i = 0; i < rowMasks[row].size(); i++) {
+                        int mask = rowMasks[row].get(i).intValue();
+                        int count = Integer.bitCount(mask);
+                        if (count <= remaining) {
+                            total = cappedAdd(total, suffixWays[row + 1][remaining - count]);
+                        }
                     }
+                    suffixWays[row][remaining] = total;
                 }
-                return;
             }
-            Collections.shuffle(rowMasks[row], random);
-            for (int i = 0; i < rowMasks[row].size(); i++) {
-                int mask = rowMasks[row].get(i).intValue();
-                selected[row] = mask;
-                search(row + 1, minesCount + Integer.bitCount(mask));
+        }
+
+        private long cappedAdd(long a, long b) {
+            if (Long.MAX_VALUE - a < b) {
+                return Long.MAX_VALUE;
             }
+            return a + b;
+        }
+
+        private long nextLongBounded(long bound) {
+            if (bound <= 0L) {
+                throw new IllegalArgumentException("bound must be positive");
+            }
+            if (bound <= Integer.MAX_VALUE) {
+                return random.nextInt((int) bound);
+            }
+            long bits;
+            long value;
+            do {
+                bits = random.nextLong() & Long.MAX_VALUE;
+                value = bits % bound;
+            } while (bits - value + (bound - 1L) < 0L);
+            return value;
         }
 
         boolean avoidsSafeZone(int r, int mask) {
@@ -649,7 +733,7 @@ final class GameEngine {
             this.r2 = r2;
             this.c2 = c2;
             this.cellsMask = cellBit(r1, c1) | cellBit(r2, c2);
-            this.forbiddenMask = buildForbiddenMask(r1, c1, r2, c2);
+            this.forbiddenMask = buildDominoConnectionMask(r1, c1, r2, c2);
         }
     }
 
@@ -657,21 +741,27 @@ final class GameEngine {
         return 1L << (r * SIZE + c);
     }
 
-    private static long buildForbiddenMask(int r1, int c1, int r2, int c2) {
+    private static long buildDominoConnectionMask(int r1, int c1, int r2, int c2) {
+        long mask = cellBit(r1, c1) | cellBit(r2, c2);
+        mask |= orthogonalNeighborMask(r1, c1);
+        mask |= orthogonalNeighborMask(r2, c2);
+        mask &= ~(cellBit(r1, c1) | cellBit(r2, c2));
+        return mask;
+    }
+
+    private static long orthogonalNeighborMask(int r, int c) {
         long mask = 0L;
-        for (int dr = -1; dr <= 1; dr++) {
-            for (int dc = -1; dc <= 1; dc++) {
-                int r = r1 + dr;
-                int c = c1 + dc;
-                if (r >= 0 && r < SIZE && c >= 0 && c < SIZE) {
-                    mask |= cellBit(r, c);
-                }
-                r = r2 + dr;
-                c = c2 + dc;
-                if (r >= 0 && r < SIZE && c >= 0 && c < SIZE) {
-                    mask |= cellBit(r, c);
-                }
-            }
+        if (r > 0) {
+            mask |= cellBit(r - 1, c);
+        }
+        if (r < SIZE - 1) {
+            mask |= cellBit(r + 1, c);
+        }
+        if (c > 0) {
+            mask |= cellBit(r, c - 1);
+        }
+        if (c < SIZE - 1) {
+            mask |= cellBit(r, c + 1);
         }
         return mask;
     }

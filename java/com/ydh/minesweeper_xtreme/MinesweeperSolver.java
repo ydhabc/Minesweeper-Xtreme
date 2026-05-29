@@ -486,12 +486,14 @@ final class MinesweeperSolver {
     }
 
     private static final class TwoDState {
+        private static final int DOMINO_COUNT = GameMode.TWO_D.mines / 2;
+
         final int[][] visible;
         final boolean[][] flags;
-        final long boardMask = (1L << (SIZE * SIZE)) - 1L;
         final long allowedMask;
         final long requiredMask;
-        final ArrayList<Placement> placements = new ArrayList<Placement>();
+        final long hiddenMask;
+        final ArrayList<DominoPlacement> placements = new ArrayList<DominoPlacement>();
         final ArrayList<Integer>[] placementsByCell;
         final ArrayList<Clue> clues = new ArrayList<Clue>();
         long mineSeenMask;
@@ -509,27 +511,28 @@ final class MinesweeperSolver {
             this.flags = flags;
             long allowed = 0L;
             long required = extraRequiredMask;
+            long hidden = 0L;
+
             for (int r = 0; r < SIZE; r++) {
                 for (int c = 0; c < SIZE; c++) {
-                    long bit = bit(r, c);
+                    long cellBit = bit(r, c);
                     if (visible[r][c] >= 0) {
-                        continue;
-                    }
-                    allowed |= bit;
-                    if (visible[r][c] == KNOWN_MINE) {
-                        required |= bit;
+                        clues.add(new Clue(cellBit, visible[r][c]));
+                    } else {
+                        allowed |= cellBit;
+                        if (visible[r][c] == HIDDEN) {
+                            hidden |= cellBit;
+                        }
+                        if (visible[r][c] == KNOWN_MINE) {
+                            required |= cellBit;
+                        }
                     }
                 }
             }
-            for (int r = 0; r < SIZE; r++) {
-                for (int c = 0; c < SIZE; c++) {
-                    if (visible[r][c] >= 0) {
-                        clues.add(new Clue(bit(r, c), visible[r][c]));
-                    }
-                }
-            }
+
             allowedMask = allowed;
             requiredMask = required;
+            hiddenMask = hidden;
             placementsByCell = new ArrayList[SIZE * SIZE];
             for (int i = 0; i < placementsByCell.length; i++) {
                 placementsByCell[i] = new ArrayList<Integer>();
@@ -537,151 +540,174 @@ final class MinesweeperSolver {
             buildPlacements();
         }
 
-        void search(int start, int placed, long occupiedMask, long forbiddenMask, long remainingRequiredMask) {
-            if (solutionCount > 0 && (mineSeenMask & allowedMask) == allowedMask) {
+        void search(int start, int placed, long occupiedMask, long blockedMask, long ignoredRemainingRequiredMask) {
+            searchAll(start, placed, occupiedMask, blockedMask);
+        }
+
+        boolean searchFirst(int start, int placed, long occupiedMask, long blockedMask, long ignoredRemainingRequiredMask) {
+            return searchOne(start, placed, occupiedMask, blockedMask);
+        }
+
+        private void searchAll(int start, int placed, long occupiedMask, long blockedMask) {
+            if (solutionCount > 0 && (mineSeenMask & hiddenMask) == hiddenMask) {
                 return;
             }
-            if (placed == 6) {
-                long currentMineMask = occupiedMask | requiredMask;
-                if (remainingRequiredMask != 0L) {
+
+            if (placed == DOMINO_COUNT) {
+                if ((occupiedMask & requiredMask) != requiredMask) {
                     return;
                 }
-                if (!allCluesMatch(currentMineMask)) {
+                if (!allCluesMatch(occupiedMask)) {
                     return;
                 }
                 solutionCount++;
-                mineSeenMask |= currentMineMask;
+                mineSeenMask |= occupiedMask;
                 return;
             }
 
-            int needed = 6 - placed;
+            int needed = DOMINO_COUNT - placed;
             if (placements.size() - start < needed) {
                 return;
             }
-
-            long currentMineMask = occupiedMask | requiredMask;
-            if (!cluesRemainPossible(currentMineMask, forbiddenMask)) {
+            if (!cluesRemainPossible(occupiedMask, blockedMask)) {
                 return;
             }
 
-            if (remainingRequiredMask != 0L) {
-                if (!requiredCellsStillCoverable(start, forbiddenMask, remainingRequiredMask)) {
-                    return;
-                }
+            long remainingRequiredMask = requiredMask & ~occupiedMask;
+            if (remainingRequiredMask != 0L
+                    && !requiredCellsStillCoverable(start, occupiedMask, blockedMask, remainingRequiredMask)) {
+                return;
             }
 
             ArrayList<Integer> preferred = new ArrayList<Integer>();
             ArrayList<Integer> others = new ArrayList<Integer>();
             for (int i = start; i < placements.size(); i++) {
-                Placement p = placements.get(i);
-                if (!isCompatible(p, forbiddenMask, remainingRequiredMask)) {
+                DominoPlacement placement = placements.get(i);
+                if (!isCompatible(placement, occupiedMask, blockedMask)) {
                     continue;
                 }
-                if ((p.cellsMask & remainingRequiredMask) != 0L) {
+                if ((placement.cellsMask & remainingRequiredMask) != 0L) {
                     preferred.add(Integer.valueOf(i));
                 } else {
                     others.add(Integer.valueOf(i));
                 }
             }
 
-            for (int pass = 0; pass < 2; pass++) {
-                ArrayList<Integer> list = pass == 0 ? preferred : others;
-                for (int j = 0; j < list.size(); j++) {
-                    int idx = list.get(j).intValue();
-                    Placement p = placements.get(idx);
-                    long newOccupied = occupiedMask | p.cellsMask;
-                    long newForbidden = forbiddenMask | p.touchMask;
-                    long newRemainingRequired = remainingRequiredMask & ~p.cellsMask;
-                    if (!cluesRemainPossible(newOccupied | requiredMask, newForbidden)) {
-                        continue;
-                    }
-                    search(idx + 1, placed + 1, newOccupied, newForbidden, newRemainingRequired);
-                    if ((mineSeenMask & allowedMask) == allowedMask) {
-                        return;
-                    }
+            searchPlacementList(preferred, placed, occupiedMask, blockedMask);
+            if (solutionCount > 0 && (mineSeenMask & hiddenMask) == hiddenMask) {
+                return;
+            }
+            searchPlacementList(others, placed, occupiedMask, blockedMask);
+        }
+
+        private void searchPlacementList(ArrayList<Integer> indexes, int placed, long occupiedMask, long blockedMask) {
+            for (int j = 0; j < indexes.size(); j++) {
+                int index = indexes.get(j).intValue();
+                DominoPlacement placement = placements.get(index);
+                long newOccupiedMask = occupiedMask | placement.cellsMask;
+                long newBlockedMask = blockedMask | placement.connectionMask;
+
+                long remainingRequiredMask = requiredMask & ~newOccupiedMask;
+                if ((placement.connectionMask & remainingRequiredMask) != 0L) {
+                    continue;
                 }
-                if (remainingRequiredMask == 0L) {
-                    break;
+                if (!cluesRemainPossible(newOccupiedMask, newBlockedMask)) {
+                    continue;
+                }
+
+                searchAll(index + 1, placed + 1, newOccupiedMask, newBlockedMask);
+                if (solutionCount > 0 && (mineSeenMask & hiddenMask) == hiddenMask) {
+                    return;
                 }
             }
         }
 
-        boolean searchFirst(int start, int placed, long occupiedMask, long forbiddenMask, long remainingRequiredMask) {
-            if (placed == 6) {
-                long currentMineMask = occupiedMask | requiredMask;
-                if (remainingRequiredMask != 0L || !allCluesMatch(currentMineMask)) {
+        private boolean searchOne(int start, int placed, long occupiedMask, long blockedMask) {
+            if (placed == DOMINO_COUNT) {
+                if ((occupiedMask & requiredMask) != requiredMask) {
                     return false;
                 }
-                solutionMask = currentMineMask;
+                if (!allCluesMatch(occupiedMask)) {
+                    return false;
+                }
+                solutionMask = occupiedMask;
                 return true;
             }
 
-            int needed = 6 - placed;
+            int needed = DOMINO_COUNT - placed;
             if (placements.size() - start < needed) {
                 return false;
             }
-
-            long currentMineMask = occupiedMask | requiredMask;
-            if (!cluesRemainPossible(currentMineMask, forbiddenMask)) {
+            if (!cluesRemainPossible(occupiedMask, blockedMask)) {
                 return false;
             }
+
+            long remainingRequiredMask = requiredMask & ~occupiedMask;
             if (remainingRequiredMask != 0L
-                    && !requiredCellsStillCoverable(start, forbiddenMask, remainingRequiredMask)) {
+                    && !requiredCellsStillCoverable(start, occupiedMask, blockedMask, remainingRequiredMask)) {
                 return false;
             }
 
             ArrayList<Integer> preferred = new ArrayList<Integer>();
             ArrayList<Integer> others = new ArrayList<Integer>();
             for (int i = start; i < placements.size(); i++) {
-                Placement p = placements.get(i);
-                if (!isCompatible(p, forbiddenMask, remainingRequiredMask)) {
+                DominoPlacement placement = placements.get(i);
+                if (!isCompatible(placement, occupiedMask, blockedMask)) {
                     continue;
                 }
-                if ((p.cellsMask & remainingRequiredMask) != 0L) {
+                if ((placement.cellsMask & remainingRequiredMask) != 0L) {
                     preferred.add(Integer.valueOf(i));
                 } else {
                     others.add(Integer.valueOf(i));
                 }
             }
 
-            for (int pass = 0; pass < 2; pass++) {
-                ArrayList<Integer> list = pass == 0 ? preferred : others;
-                for (int j = 0; j < list.size(); j++) {
-                    int idx = list.get(j).intValue();
-                    Placement p = placements.get(idx);
-                    long newOccupied = occupiedMask | p.cellsMask;
-                    long newForbidden = forbiddenMask | p.touchMask;
-                    long newRemainingRequired = remainingRequiredMask & ~p.cellsMask;
-                    if (!cluesRemainPossible(newOccupied | requiredMask, newForbidden)) {
-                        continue;
-                    }
-                    if (searchFirst(idx + 1, placed + 1, newOccupied, newForbidden, newRemainingRequired)) {
-                        return true;
-                    }
+            if (searchOnePlacementList(preferred, placed, occupiedMask, blockedMask)) {
+                return true;
+            }
+            return searchOnePlacementList(others, placed, occupiedMask, blockedMask);
+        }
+
+        private boolean searchOnePlacementList(ArrayList<Integer> indexes, int placed, long occupiedMask, long blockedMask) {
+            for (int j = 0; j < indexes.size(); j++) {
+                int index = indexes.get(j).intValue();
+                DominoPlacement placement = placements.get(index);
+                long newOccupiedMask = occupiedMask | placement.cellsMask;
+                long newBlockedMask = blockedMask | placement.connectionMask;
+
+                long remainingRequiredMask = requiredMask & ~newOccupiedMask;
+                if ((placement.connectionMask & remainingRequiredMask) != 0L) {
+                    continue;
                 }
-                if (remainingRequiredMask == 0L) {
-                    break;
+                if (!cluesRemainPossible(newOccupiedMask, newBlockedMask)) {
+                    continue;
+                }
+                if (searchOne(index + 1, placed + 1, newOccupiedMask, newBlockedMask)) {
+                    return true;
                 }
             }
             return false;
         }
 
-        private boolean requiredCellsStillCoverable(int start, long forbiddenMask, long remainingRequiredMask) {
+        private boolean requiredCellsStillCoverable(int start, long occupiedMask, long blockedMask, long remainingRequiredMask) {
             long bits = remainingRequiredMask;
             while (bits != 0L) {
-                long bit = bits & -bits;
-                int cellIndex = Long.numberOfTrailingZeros(bit);
+                long requiredCellBit = bits & -bits;
+                int cellIndex = Long.numberOfTrailingZeros(requiredCellBit);
                 boolean possible = false;
                 ArrayList<Integer> options = placementsByCell[cellIndex];
                 for (int i = 0; i < options.size(); i++) {
-                    int idx = options.get(i).intValue();
-                    if (idx < start) {
+                    int placementIndex = options.get(i).intValue();
+                    if (placementIndex < start) {
                         continue;
                     }
-                    Placement p = placements.get(idx);
-                    if (isCompatible(p, forbiddenMask, remainingRequiredMask)) {
-                        possible = true;
-                        break;
+                    DominoPlacement placement = placements.get(placementIndex);
+                    if (isCompatible(placement, occupiedMask, blockedMask)) {
+                        long restRequired = remainingRequiredMask & ~placement.cellsMask;
+                        if ((placement.connectionMask & restRequired) == 0L) {
+                            possible = true;
+                            break;
+                        }
                     }
                 }
                 if (!possible) {
@@ -692,28 +718,27 @@ final class MinesweeperSolver {
             return true;
         }
 
-        private boolean isCompatible(Placement p, long forbiddenMask, long remainingRequiredMask) {
-            if ((p.cellsMask & allowedMask) != p.cellsMask) {
+        private boolean isCompatible(DominoPlacement placement, long occupiedMask, long blockedMask) {
+            if ((placement.cellsMask & allowedMask) != placement.cellsMask) {
                 return false;
             }
-            if ((p.cellsMask & forbiddenMask) != 0L) {
+            if ((placement.cellsMask & occupiedMask) != 0L) {
                 return false;
             }
-            long touchedRequired = p.touchMask & remainingRequiredMask;
-            if ((touchedRequired & ~p.cellsMask) != 0L) {
+            if ((placement.cellsMask & blockedMask) != 0L) {
                 return false;
             }
-            return true;
+            return (placement.connectionMask & occupiedMask) == 0L;
         }
 
-        private boolean cluesRemainPossible(long currentMineMask, long forbiddenMask) {
+        private boolean cluesRemainPossible(long occupiedMask, long blockedMask) {
             for (int i = 0; i < clues.size(); i++) {
                 Clue clue = clues.get(i);
-                int current = Long.bitCount(currentMineMask & clue.adjacentMask);
+                int current = Long.bitCount(occupiedMask & clue.adjacentMask);
                 if (current > clue.number) {
                     return false;
                 }
-                long available = clue.adjacentMask & allowedMask & ~forbiddenMask & ~currentMineMask;
+                long available = clue.adjacentMask & allowedMask & ~occupiedMask & ~blockedMask;
                 if (current + Long.bitCount(available) < clue.number) {
                     return false;
                 }
@@ -721,10 +746,10 @@ final class MinesweeperSolver {
             return true;
         }
 
-        private boolean allCluesMatch(long currentMineMask) {
+        private boolean allCluesMatch(long occupiedMask) {
             for (int i = 0; i < clues.size(); i++) {
                 Clue clue = clues.get(i);
-                if (Long.bitCount(currentMineMask & clue.adjacentMask) != clue.number) {
+                if (Long.bitCount(occupiedMask & clue.adjacentMask) != clue.number) {
                     return false;
                 }
             }
@@ -749,36 +774,29 @@ final class MinesweeperSolver {
             if ((cellsMask & ~allowedMask) != 0L) {
                 return;
             }
-            long touchMask = buildTouchMask(r1, c1, r2, c2);
-            Placement placement = new Placement(cellsMask, touchMask);
+            DominoPlacement placement = new DominoPlacement(cellsMask, buildDominoConnectionMask(r1, c1, r2, c2));
             int index = placements.size();
             placements.add(placement);
-            addCellPlacement(index, r1, c1);
-            addCellPlacement(index, r2, c2);
-        }
-
-        private void addCellPlacement(int placementIndex, int r, int c) {
-            placementsByCell[r * SIZE + c].add(Integer.valueOf(placementIndex));
+            placementsByCell[r1 * SIZE + c1].add(Integer.valueOf(index));
+            placementsByCell[r2 * SIZE + c2].add(Integer.valueOf(index));
         }
     }
 
-    private static final class Placement {
+    private static final class DominoPlacement {
         final long cellsMask;
-        final long touchMask;
+        final long connectionMask;
 
-        Placement(long cellsMask, long touchMask) {
+        DominoPlacement(long cellsMask, long connectionMask) {
             this.cellsMask = cellsMask;
-            this.touchMask = touchMask;
+            this.connectionMask = connectionMask;
         }
     }
 
     private static final class Clue {
-        final long cellBit;
         final long adjacentMask;
         final int number;
 
         Clue(long cellBit, int number) {
-            this.cellBit = cellBit;
             this.adjacentMask = buildAdjacentMask(cellBit);
             this.number = number;
         }
@@ -982,21 +1000,25 @@ final class MinesweeperSolver {
         return mask;
     }
 
-    private static long buildTouchMask(int r1, int c1, int r2, int c2) {
+    private static long buildDominoConnectionMask(int r1, int c1, int r2, int c2) {
+        long ownCells = bit(r1, c1) | bit(r2, c2);
+        long mask = orthogonalNeighborMask(r1, c1) | orthogonalNeighborMask(r2, c2);
+        return mask & ~ownCells;
+    }
+
+    private static long orthogonalNeighborMask(int r, int c) {
         long mask = 0L;
-        for (int dr = -1; dr <= 1; dr++) {
-            for (int dc = -1; dc <= 1; dc++) {
-                int nr = r1 + dr;
-                int nc = c1 + dc;
-                if (inBounds(nr, nc)) {
-                    mask |= bit(nr, nc);
-                }
-                nr = r2 + dr;
-                nc = c2 + dc;
-                if (inBounds(nr, nc)) {
-                    mask |= bit(nr, nc);
-                }
-            }
+        if (r > 0) {
+            mask |= bit(r - 1, c);
+        }
+        if (r < SIZE - 1) {
+            mask |= bit(r + 1, c);
+        }
+        if (c > 0) {
+            mask |= bit(r, c - 1);
+        }
+        if (c < SIZE - 1) {
+            mask |= bit(r, c + 1);
         }
         return mask;
     }

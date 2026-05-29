@@ -546,8 +546,9 @@ public class MainActivity extends Activity implements BoardView.Listener {
                         + "积分规则\n"
                         + "1. 点开格子会获得积分\n"
                         + "2. 连续快速点开格子将会获得更高的倍率，快速指的是30秒内进行单步操作\n"
-                        + "3. 快速完成胜利会有大量的奖励积分\n"
-                        + "4. 在无解情况下，点到雷会导致连续操作的倍率清零\n"
+                        + "3. 以极快的速度点开格子会有奖励积分\n"
+                        + "4. 快速完成胜利会有大量的奖励积分\n"
+                        + "5. 在无解情况下，点到雷会导致连续操作的倍率清零\n"
                         + "\n"
                         + "专家模式\n"
                         + "1. 这是更严格的游戏模式，不允许猜测，在有解的情况下如果点到非百分百安全的格子将会直接判负\n"
@@ -635,16 +636,16 @@ public class MainActivity extends Activity implements BoardView.Listener {
     }
 
     private String evaluation(int score) {
-        if (score >= 2100) {
+        if (score >= 2300) {
             return "好强啊，你超过了我目前所能达到的最高分，如果玩这个游戏能给你带来一些乐趣，那真是太好了";
         }
-        if (score >= 1800) {
+        if (score >= 1900) {
             return "太强了，你一定是扫雷的高手，感谢你游玩我的游戏！";
         }
-        if (score >= 1400) {
+        if (score >= 1500) {
             return "不错哦";
         }
-        if (score >= 1000) {
+        if (score >= 1100) {
             return "或许你可以达到更高的分数，我坚定的这么认为";
         }
         return "还需要多加练习，不过，恭喜通关！";
