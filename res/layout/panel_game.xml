@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/game_panel"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:visibility="gone">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_game_back"
+            style="@style/SmallButton"
+            android:text="主页" />
+
+        <Button
+            android:id="@+id/btn_pause"
+            style="@style/SmallButton"
+            android:layout_marginLeft="8dp"
+            android:text="暂停" />
+
+        <TextView
+            android:id="@+id/txt_game_mode"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:textColor="@color/textWarm"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/panel_bg"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/txt_status_line"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/textWarm"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/txt_timer_line"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:textColor="@color/textMuted"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <com.ydh.minesweeper_xtreme.BoardView
+        android:id="@+id/board_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="18dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:id="@+id/txt_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:textColor="@color/textWarm"
+        android:textSize="15sp" />
+
+    <Button
+        android:id="@+id/btn_restart"
+        style="@style/QuietButton"
+        android:layout_marginTop="10dp"
+        android:text="重新开始本局设置" />
+</LinearLayout>

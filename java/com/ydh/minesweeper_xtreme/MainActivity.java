@@ -1,7 +1,6 @@
 package com.ydh.minesweeper_xtreme;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -25,13 +24,31 @@ public class MainActivity extends Activity implements BoardView.Listener {
     private View menuPanel;
     private View settingsPanel;
     private View rulesPanel;
+    private View rulesListContainer;
+    private View rulesDetailContainer;
     private View audioPanel;
+    private View scoresPanel;
+    private View continuePanel;
     private View gamePanel;
     private TextView settingsModeText;
     private TextView ruleText;
+    private TextView rulesTitleText;
+    private TextView rulesSubtitleText;
+    private TextView ruleDetailTitleText;
     private TextView rulesContentText;
     private TextView homeVolumeText;
     private TextView gameVolumeText;
+    private TextView scoreNormalText;
+    private TextView scoreNormalNoteText;
+    private TextView scoreTwoHText;
+    private TextView scoreTwoHNoteText;
+    private TextView scoreTwoDText;
+    private TextView scoreTwoDNoteText;
+    private TextView scoreTwoGText;
+    private TextView scoreTwoGNoteText;
+    private TextView continueTitleText;
+    private TextView continueBodyText;
+    private TextView continueStatsText;
     private CheckBox stepTimerCheck;
     private CheckBox expertCheck;
     private CheckBox muteCheck;
@@ -49,6 +66,7 @@ public class MainActivity extends Activity implements BoardView.Listener {
     private Button gameBackButton;
     private Button restartButton;
     private Button pauseButton;
+    private Button rulesBackButton;
     private Button resultRestartButton;
     private Button resultMenuButton;
     private Button resultToggleMapButton;
@@ -155,13 +173,31 @@ public class MainActivity extends Activity implements BoardView.Listener {
         menuPanel = findViewById(R.id.menu_panel);
         settingsPanel = findViewById(R.id.settings_panel);
         rulesPanel = findViewById(R.id.rules_panel);
+        rulesListContainer = findViewById(R.id.rules_list_container);
+        rulesDetailContainer = findViewById(R.id.rules_detail_container);
         audioPanel = findViewById(R.id.audio_panel);
+        scoresPanel = findViewById(R.id.scores_panel);
+        continuePanel = findViewById(R.id.continue_panel);
         gamePanel = findViewById(R.id.game_panel);
         settingsModeText = (TextView) findViewById(R.id.txt_settings_mode);
         ruleText = (TextView) findViewById(R.id.txt_rule);
+        rulesTitleText = (TextView) findViewById(R.id.txt_rules_title);
+        rulesSubtitleText = (TextView) findViewById(R.id.txt_rules_subtitle);
+        ruleDetailTitleText = (TextView) findViewById(R.id.txt_rule_detail_title);
         rulesContentText = (TextView) findViewById(R.id.txt_rules_content);
         homeVolumeText = (TextView) findViewById(R.id.txt_home_volume);
         gameVolumeText = (TextView) findViewById(R.id.txt_game_volume);
+        scoreNormalText = (TextView) findViewById(R.id.txt_score_normal);
+        scoreNormalNoteText = (TextView) findViewById(R.id.txt_score_normal_note);
+        scoreTwoHText = (TextView) findViewById(R.id.txt_score_2h);
+        scoreTwoHNoteText = (TextView) findViewById(R.id.txt_score_2h_note);
+        scoreTwoDText = (TextView) findViewById(R.id.txt_score_2d);
+        scoreTwoDNoteText = (TextView) findViewById(R.id.txt_score_2d_note);
+        scoreTwoGText = (TextView) findViewById(R.id.txt_score_2g);
+        scoreTwoGNoteText = (TextView) findViewById(R.id.txt_score_2g_note);
+        continueTitleText = (TextView) findViewById(R.id.txt_continue_title);
+        continueBodyText = (TextView) findViewById(R.id.txt_continue_body);
+        continueStatsText = (TextView) findViewById(R.id.txt_continue_stats);
         stepTimerCheck = (CheckBox) findViewById(R.id.check_step_timer);
         expertCheck = (CheckBox) findViewById(R.id.check_expert);
         muteCheck = (CheckBox) findViewById(R.id.check_mute);
@@ -181,6 +217,7 @@ public class MainActivity extends Activity implements BoardView.Listener {
         gameBackButton = (Button) findViewById(R.id.btn_game_back);
         restartButton = (Button) findViewById(R.id.btn_restart);
         pauseButton = (Button) findViewById(R.id.btn_pause);
+        rulesBackButton = (Button) findViewById(R.id.btn_rules_back);
         boardView = (BoardView) findViewById(R.id.board_view);
     }
 
@@ -276,13 +313,89 @@ public class MainActivity extends Activity implements BoardView.Listener {
                 toggleResultMineMap();
             }
         });
-        ((Button) findViewById(R.id.btn_rules_back)).setOnClickListener(new View.OnClickListener() {
+        rulesBackButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (rulesDetailContainer.getVisibility() == View.VISIBLE) {
+                    showRulesIndex();
+                } else {
+                    showMenu();
+                }
+            }
+        });
+        ((Button) findViewById(R.id.btn_rule_basic)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showRuleDetail("普通扫雷规则", basicRulesText());
+            }
+        });
+        ((Button) findViewById(R.id.btn_rule_modes)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showRuleDetail("变体模式规则", modeRulesText());
+            }
+        });
+        ((Button) findViewById(R.id.btn_rule_score)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showRuleDetail("积分规则", scoreRulesText());
+            }
+        });
+        ((Button) findViewById(R.id.btn_rule_expert)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showRuleDetail("专家模式", expertRulesText());
+            }
+        });
+        ((Button) findViewById(R.id.btn_rule_timer)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showRuleDetail("倒计时规则", timerRulesText());
+            }
+        });
+        ((Button) findViewById(R.id.btn_rule_records)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showRuleDetail("历史记录", recordRulesText());
+            }
+        });
+        ((Button) findViewById(R.id.btn_rule_evaluation)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showRuleDetail("开发者评价", evaluationRulesText());
+            }
+        });
+        ((Button) findViewById(R.id.btn_rule_tips)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showRuleDetail("提示", tipRulesText());
+            }
+        });
+        ((Button) findViewById(R.id.btn_audio_back)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showMenu();
             }
         });
-        ((Button) findViewById(R.id.btn_audio_back)).setOnClickListener(new View.OnClickListener() {
+        ((Button) findViewById(R.id.btn_scores_back)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showMenu();
+            }
+        });
+        ((Button) findViewById(R.id.btn_continue_resume)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                resumeGame();
+            }
+        });
+        ((Button) findViewById(R.id.btn_continue_restart)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                restartActiveMode();
+            }
+        });
+        ((Button) findViewById(R.id.btn_continue_cancel)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showMenu();
@@ -339,23 +452,7 @@ public class MainActivity extends Activity implements BoardView.Listener {
 
     private void chooseMode(final GameMode mode) {
         if (hasActiveGame(mode)) {
-            new AlertDialog.Builder(this)
-                    .setTitle(mode.title)
-                    .setMessage("这个模式有一局未结束的游戏。")
-                    .setPositiveButton("继续游戏", new android.content.DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(android.content.DialogInterface dialog, int which) {
-                            resumeGame();
-                        }
-                    })
-                    .setNegativeButton("重新开始", new android.content.DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(android.content.DialogInterface dialog, int which) {
-                            restartActiveMode();
-                        }
-                    })
-                    .setNeutralButton("取消", null)
-                    .show();
+            showContinuePanel(mode);
             return;
         }
         openSettings(mode);
@@ -451,21 +548,54 @@ public class MainActivity extends Activity implements BoardView.Listener {
     }
 
     private void showHighScores() {
-        String message = "普通模式：" + formatScore(GameMode.NORMAL) + "\n\n"
-                + "变体一 (2H)：" + formatScore(GameMode.TWO_H) + "\n\n"
-                + "变体二 (2D)：" + formatScore(GameMode.TWO_D) + "\n\n"
-                + "变体三 (2G)：" + formatScore(GameMode.TWO_G);
-        new AlertDialog.Builder(this)
-                .setTitle("历史最高分")
-                .setMessage(message)
-                .setPositiveButton("关闭", null)
-                .show();
+        updateScoreCard(scoreNormalText, scoreNormalNoteText, GameMode.NORMAL);
+        updateScoreCard(scoreTwoHText, scoreTwoHNoteText, GameMode.TWO_H);
+        updateScoreCard(scoreTwoDText, scoreTwoDNoteText, GameMode.TWO_D);
+        updateScoreCard(scoreTwoGText, scoreTwoGNoteText, GameMode.TWO_G);
+        hideAllPanels();
+        scoresPanel.setVisibility(View.VISIBLE);
+        syncMusicScene();
+    }
+
+    private void showContinuePanel(GameMode mode) {
+        long now = System.currentTimeMillis();
+        continueTitleText.setText(mode.title + " 仍在进行");
+        continueBodyText.setText("你从主页再次进入了这个模式。保留当前进度继续，或用同样设置开一局新的。");
+        continueStatsText.setText("分数 " + engine.score
+                + "\n连击 x" + engine.combo
+                + "\n用时 " + engine.elapsedSeconds(now) + " 秒"
+                + "\n剩余雷 " + engine.remainingMinesDisplay() + " / " + engine.totalMinesDisplay()
+                + "\n单步计时：" + (engine.stepTimerEnabled ? engine.stepRemainingSeconds(now) + " 秒" : "关闭")
+                + "\n专家模式：" + (engine.expertModeEnabled ? "开启" : "关闭")
+                + "\n暂停记录：" + (engine.pauseUsed ? "本局已使用过暂停" : "尚未使用暂停"));
+        hideAllPanels();
+        continuePanel.setVisibility(View.VISIBLE);
+        syncMusicScene();
     }
 
     private void showRulesPanel() {
         hideAllPanels();
         rulesPanel.setVisibility(View.VISIBLE);
+        showRulesIndex();
         syncMusicScene();
+    }
+
+    private void showRulesIndex() {
+        rulesBackButton.setText("返回");
+        rulesTitleText.setText("规则说明");
+        rulesSubtitleText.setText("选择一个主题查看完整说明。");
+        rulesListContainer.setVisibility(View.VISIBLE);
+        rulesDetailContainer.setVisibility(View.GONE);
+    }
+
+    private void showRuleDetail(String title, String content) {
+        rulesBackButton.setText("目录");
+        rulesTitleText.setText(title);
+        rulesSubtitleText.setText("阅读完后可返回目录查看其他规则。");
+        ruleDetailTitleText.setText(title);
+        rulesContentText.setText(content);
+        rulesListContainer.setVisibility(View.GONE);
+        rulesDetailContainer.setVisibility(View.VISIBLE);
     }
 
     private void showAudioPanel() {
@@ -480,6 +610,8 @@ public class MainActivity extends Activity implements BoardView.Listener {
         settingsPanel.setVisibility(View.GONE);
         rulesPanel.setVisibility(View.GONE);
         audioPanel.setVisibility(View.GONE);
+        scoresPanel.setVisibility(View.GONE);
+        continuePanel.setVisibility(View.GONE);
         gamePanel.setVisibility(View.GONE);
         resultPanel.setVisibility(View.GONE);
     }
@@ -535,44 +667,65 @@ public class MainActivity extends Activity implements BoardView.Listener {
     }
 
     private void initRulesText() {
-        rulesContentText.setText(
-                "普通扫雷规则\n"
-                        + "1. 目标是找出所有非雷格，并且不要点到雷。\n"
-                        + "2. 点击格子后，如果不是雷，就会显示数字；数字表示它周围 8 个格子里有多少颗雷。\n"
-                        + "3. 如果一个格子显示 0，会自动展开周围安全区域。\n"
-                        + "4. 你可以右键或长按给格子做雷标记。标记只是辅助判断，不会因为标错而扣分或惩罚。\n"
-                        + "5. 在无解情况下，即使点到雷也不会判负，但是连续操作的加分会清零\n"
-                        + "\n"
-                        + "积分规则\n"
-                        + "1. 点开格子会获得积分\n"
-                        + "2. 连续快速点开格子将会获得更高的倍率，快速指的是30秒内进行单步操作\n"
-                        + "3. 以极快的速度点开格子会有奖励积分\n"
-                        + "4. 快速完成胜利会有大量的奖励积分\n"
-                        + "5. 在无解情况下，点到雷会导致连续操作的倍率清零\n"
-                        + "\n"
-                        + "专家模式\n"
-                        + "1. 这是更严格的游戏模式，不允许猜测，在有解的情况下如果点到非百分百安全的格子将会直接判负\n"
-                        + "2. 请务必谨慎判断当前情况是否有解哦\n"
-                        + "\n"
-                        + "倒计时规则\n"
-                        + "1. 开启单步计时后，每一步都有 60 秒限制。\n"
-                        + "2. 这一手超过时间仍未完成，系统会直接判负。\n"
-                        + "3. 暂停时计时不会继续走，恢复后再继续计算。但是使用后本局将不会触发开发者评价，也不会计入历史最高分\n"
-                        + "\n"
-                        + "历史最高分\n"
-                        + "1. 只有同时开启“单步计时”和“专家模式”并且取得胜利时，本局才会参与历史最高分。\n"
-                        + "2. 在局内使用暂停也会导致历史最高分无法计入\n"
-                        + "3. 不断挑战自己，创下新的记录吧！\n"
-                        + "\n"
-                        + "开发者评价\n"
-                        + "1. 只有同时开启“单步计时”和“专家模式”并且取得胜利，本局才会触发开发者评价。\n"
-                        + "2. 在局内使用暂停也会导致开发者评价无法触发\n"
-                        + "3. 不同的分数会触发不同的开发者评价哦！\n"
-                        + "4. 同一分数段可能会触发不同开发者的评价，尽可能多看到一些我们的评价吧！\n"
-                        + "\n"
-                        + "提示\n"
-                        + "主页返回游戏时，会先自动进入暂停；再次点同一模式，可以选择继续游戏或重新开始。"
-        );
+        showRulesIndex();
+    }
+
+    private String basicRulesText() {
+        return "1. 目标是找出所有非雷格，并且不要点到雷。\n"
+                + "2. 点击格子后，如果不是雷，就会显示数字；数字表示它周围 8 个格子里有多少颗雷。\n"
+                + "3. 如果一个格子显示 0，会自动展开周围安全区域。\n"
+                + "4. 你可以右键或长按给格子做雷标记。标记只是辅助判断，不会因为标错而扣分或惩罚。\n"
+                + "5. 在无解情况下，即使点到雷也不会判负，但是连续操作的加分会清零。";
+    }
+
+    private String modeRulesText() {
+        return "普通模式\n"
+                + GameMode.NORMAL.rule + "\n\n"
+                + "变体一：水平双雷 (2H)\n"
+                + GameMode.TWO_H.rule + "\n\n"
+                + "变体二：骨牌雷 (2D)\n"
+                + GameMode.TWO_D.rule + "\n\n"
+                + "变体三：2x2 雷块 (2G)\n"
+                + GameMode.TWO_G.rule;
+    }
+
+    private String scoreRulesText() {
+        return "1. 点开格子会获得积分。\n"
+                + "2. 连续快速点开格子将会获得更高的倍率，快速指的是 30 秒内进行单步操作。\n"
+                + "3. 以极快的速度点开格子会有奖励积分。\n"
+                + "4. 快速完成胜利会有大量的奖励积分。\n"
+                + "5. 在无解情况下，点到雷会导致连续操作的倍率清零。";
+    }
+
+    private String expertRulesText() {
+        return "1. 这是更严格的游戏模式，不允许猜测。\n"
+                + "2. 在有确定安全格的情况下，如果点到非百分百安全的格子，将会直接判负。\n"
+                + "3. 请务必先判断当前局面是否存在确定安全解。";
+    }
+
+    private String timerRulesText() {
+        return "1. 开启单步计时后，每一步都有 60 秒限制。\n"
+                + "2. 这一手超过时间仍未完成，系统会直接判负。\n"
+                + "3. 暂停时计时不会继续走，恢复后再继续计算。\n"
+                + "4. 使用暂停后，本局不会触发开发者评价，也不会计入历史记录。";
+    }
+
+    private String recordRulesText() {
+        return "1. 只有同时开启“单步计时”和“专家模式”并且取得胜利时，本局才会参与历史记录。\n"
+                + "2. 在局内使用暂停会导致本局无法计入历史记录。\n"
+                + "3. 每个模式会单独保存自己的最高分。";
+    }
+
+    private String evaluationRulesText() {
+        return "1. 只有同时开启“单步计时”和“专家模式”并且取得胜利，本局才会触发开发者评价。\n"
+                + "2. 在局内使用暂停也会导致开发者评价无法触发。\n"
+                + "3. 不同的分数会触发不同的开发者评价。\n"
+                + "4. 同一分数段可能会触发不同开发者的评价，可以多挑战几次。";
+    }
+
+    private String tipRulesText() {
+        return "主页返回游戏时，会先自动进入暂停。\n"
+                + "再次点同一模式，可以选择继续游戏或用相同设置重新开始。";
     }
 
     private void initAudioSettings() {
@@ -611,9 +764,15 @@ public class MainActivity extends Activity implements BoardView.Listener {
         musicPlayer.setVolumes(homeVolumeSeek.getProgress() / 100f, gameVolumeSeek.getProgress() / 100f);
     }
 
-    private String formatScore(GameMode mode) {
+    private void updateScoreCard(TextView scoreText, TextView noteText, GameMode mode) {
         int score = scores.getInt(mode.highScoreKey(), 0);
-        return score > 0 ? score + " 分" : "暂无";
+        if (score > 0) {
+            scoreText.setText(score + " 分");
+            noteText.setText("当前模式最高纪录，继续刷新它。");
+        } else {
+            scoreText.setText("暂无记录");
+            noteText.setText("完成一局符合记录条件的胜利后会显示在这里。");
+        }
     }
 
     private void updateRecordAndEvaluation() {

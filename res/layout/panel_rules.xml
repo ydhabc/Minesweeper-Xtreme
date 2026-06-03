@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rules_panel"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:visibility="gone">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <Button
+            android:id="@+id/btn_rules_back"
+            style="@style/SmallButton"
+            android:text="返回" />
+
+        <TextView
+            android:id="@+id/txt_rules_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="规则说明"
+            android:textColor="@color/textWarm"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txt_rules_subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="选择一个主题查看完整说明。"
+            android:textColor="@color/textMuted"
+            android:textSize="14sp" />
+
+        <LinearLayout
+            android:id="@+id/rules_list_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/btn_rule_basic"
+                style="@style/XtremeButton"
+                android:text="普通扫雷规则" />
+
+            <Button
+                android:id="@+id/btn_rule_modes"
+                style="@style/XtremeButton"
+                android:text="变体模式规则" />
+
+            <Button
+                android:id="@+id/btn_rule_score"
+                style="@style/XtremeButton"
+                android:text="积分规则" />
+
+            <Button
+                android:id="@+id/btn_rule_expert"
+                style="@style/XtremeButton"
+                android:text="专家模式" />
+
+            <Button
+                android:id="@+id/btn_rule_timer"
+                style="@style/XtremeButton"
+                android:text="倒计时规则" />
+
+            <Button
+                android:id="@+id/btn_rule_records"
+                style="@style/XtremeButton"
+                android:text="历史记录" />
+
+            <Button
+                android:id="@+id/btn_rule_evaluation"
+                style="@style/XtremeButton"
+                android:text="开发者评价" />
+
+            <Button
+                android:id="@+id/btn_rule_tips"
+                style="@style/QuietButton"
+                android:layout_marginTop="16dp"
+                android:text="提示" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/rules_detail_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/panel_bg"
+            android:orientation="vertical"
+            android:padding="18dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/txt_rule_detail_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/accentGold"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txt_rules_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:lineSpacingExtra="6dp"
+                android:textColor="@color/textWarm"
+                android:textSize="16sp" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

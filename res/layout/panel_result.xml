@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/result_panel"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bgDeep"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:visibility="gone">
+
+    <Button
+        android:id="@+id/btn_result_toggle_map"
+        style="@style/ResultPeekButton"
+        android:layout_gravity="end"
+        android:layout_marginBottom="10dp"
+        android:text="看雷图" />
+
+    <LinearLayout
+        android:id="@+id/result_summary_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/txt_result_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:gravity="center"
+            android:textColor="@color/accentGold"
+            android:textSize="32sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txt_result_body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/panel_bg"
+            android:gravity="center"
+            android:lineSpacingExtra="6dp"
+            android:padding="20dp"
+            android:textColor="@color/textWarm"
+            android:textSize="17sp" />
+
+        <Button
+            android:id="@+id/btn_result_restart"
+            style="@style/XtremeButton"
+            android:layout_marginTop="20dp"
+            android:text="再来一局" />
+
+        <Button
+            android:id="@+id/btn_result_menu"
+            style="@style/XtremeButton"
+            android:text="返回主页" />
+    </LinearLayout>
+</LinearLayout>
