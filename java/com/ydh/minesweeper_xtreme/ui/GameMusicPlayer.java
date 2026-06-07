@@ -1,4 +1,4 @@
-package com.ydh.minesweeper_xtreme;
+package com.ydh.minesweeper_xtreme.ui;
 
 import android.content.Context;
 import android.media.MediaPlayer;

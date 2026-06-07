@@ -1,4 +1,4 @@
-package com.ydh.minesweeper_xtreme;
+package com.ydh.minesweeper_xtreme.ui;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -11,6 +11,11 @@ import android.widget.CheckBox;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.ydh.minesweeper_xtreme.R;
+import com.ydh.minesweeper_xtreme.game.GameCoordinator;
+import com.ydh.minesweeper_xtreme.game.GameEngine;
+import com.ydh.minesweeper_xtreme.game.GameMode;
+
 public class MainActivity extends Activity implements BoardView.Listener {
     private static final String AUDIO_PREFS = "audio_settings";
     private static final String KEY_MUTED = "muted";
@@ -19,7 +24,8 @@ public class MainActivity extends Activity implements BoardView.Listener {
     private static final int VOLUME_MAX = 100;
 
     private final Handler handler = new Handler();
-    private final GameEngine engine = new GameEngine();
+    private final GameCoordinator gameCoordinator = new GameCoordinator();
+    private final GameEngine engine = gameCoordinator.engine();
 
     private View menuPanel;
     private View settingsPanel;
@@ -82,12 +88,8 @@ public class MainActivity extends Activity implements BoardView.Listener {
         public void run() {
             long now = System.currentTimeMillis();
             if (gamePanel != null && gamePanel.getVisibility() == View.VISIBLE) {
-                if (!engine.paused) {
-                    engine.updateComboTimeout(now);
-                }
-                if (!engine.paused && engine.stepTimerEnabled && engine.generated && !engine.gameOver
-                        && engine.stepRemainingSeconds(now) <= 0) {
-                    engine.loseByTimeout(now);
+                gameCoordinator.updateComboTimeout(now);
+                if (gameCoordinator.handleStepTimeout(now)) {
                     showResultPage();
                 }
                 refreshGame();
@@ -147,7 +149,7 @@ public class MainActivity extends Activity implements BoardView.Listener {
         if (engine.gameOver || engine.paused) {
             return;
         }
-        engine.reveal(row, col, System.currentTimeMillis());
+        gameCoordinator.reveal(row, col, System.currentTimeMillis());
         if (engine.won) {
             updateRecordAndEvaluation();
         }
@@ -159,13 +161,13 @@ public class MainActivity extends Activity implements BoardView.Listener {
 
     @Override
     public void onCellLongPress(int row, int col) {
-        engine.toggleFlag(row, col);
+        gameCoordinator.toggleFlag(row, col);
         refreshGame();
     }
 
     @Override
     public void onCellRightClick(int row, int col) {
-        engine.toggleFlag(row, col);
+        gameCoordinator.toggleFlag(row, col);
         refreshGame();
     }
 
@@ -285,7 +287,7 @@ public class MainActivity extends Activity implements BoardView.Listener {
         pauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                engine.togglePause(System.currentTimeMillis());
+                gameCoordinator.togglePause(System.currentTimeMillis());
                 refreshGame();
             }
         });
@@ -473,7 +475,7 @@ public class MainActivity extends Activity implements BoardView.Listener {
 
     private void resumeGame() {
         selectedMode = engine.mode;
-        engine.resumeFromMenu(System.currentTimeMillis());
+        gameCoordinator.resumeFromMenu(System.currentTimeMillis());
         gameModeText.setText(engine.mode.title);
         hideAllPanels();
         gamePanel.setVisibility(View.VISIBLE);
@@ -489,7 +491,7 @@ public class MainActivity extends Activity implements BoardView.Listener {
     }
 
     private void startGame() {
-        engine.reset(selectedMode, stepTimerCheck.isChecked(), expertCheck.isChecked());
+        gameCoordinator.startGame(selectedMode, stepTimerCheck.isChecked(), expertCheck.isChecked());
         resultShown = false;
         resultMineMapVisible = false;
         setGameControlsEnabled(true);
@@ -501,7 +503,7 @@ public class MainActivity extends Activity implements BoardView.Listener {
     }
 
     private void leaveGameToMenu() {
-        engine.pauseFromMenu(System.currentTimeMillis());
+        gameCoordinator.pauseFromMenu(System.currentTimeMillis());
         showMenu();
     }
 

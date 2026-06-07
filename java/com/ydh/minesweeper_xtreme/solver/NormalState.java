@@ -1,9 +1,11 @@
-package com.ydh.minesweeper_xtreme;
+package com.ydh.minesweeper_xtreme.solver;
+
+import com.ydh.minesweeper_xtreme.game.GameMode;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.ydh.minesweeper_xtreme.MinesweeperSolver.*;
+import static com.ydh.minesweeper_xtreme.solver.MinesweeperSolver.*;
 
 final class NormalState {
     final int[][] visible;

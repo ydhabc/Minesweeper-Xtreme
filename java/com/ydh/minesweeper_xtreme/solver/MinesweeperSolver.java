@@ -1,17 +1,19 @@
-package com.ydh.minesweeper_xtreme;
+package com.ydh.minesweeper_xtreme.solver;
 
-final class MinesweeperSolver {
-    static final int HIDDEN = -1;
-    static final int KNOWN_MINE = -3;
-    static final int SIZE = 7;
+import com.ydh.minesweeper_xtreme.game.GameMode;
 
-    static final int[] DR = {-1, -1, -1, 0, 0, 1, 1, 1};
-    static final int[] DC = {-1, 0, 1, -1, 1, -1, 0, 1};
+public final class MinesweeperSolver {
+    public static final int HIDDEN = -1;
+    public static final int KNOWN_MINE = -3;
+    public static final int SIZE = 7;
+
+    public static final int[] DR = {-1, -1, -1, 0, 0, 1, 1, 1};
+    public static final int[] DC = {-1, 0, 1, -1, 1, -1, 0, 1};
 
     private MinesweeperSolver() {
     }
 
-    static Result findCertainSafe(GameMode mode, int[][] visible, boolean[][] flags) {
+    public static Result findCertainSafe(GameMode mode, int[][] visible, boolean[][] flags) {
         if (mode == GameMode.TWO_G) {
             return solveTwoG(visible, flags);
         }
@@ -24,7 +26,7 @@ final class MinesweeperSolver {
         return solveNormal(visible, flags);
     }
 
-    static boolean[][] findMineMapWithMine(GameMode mode, int[][] visible, int mineR, int mineC) {
+    public static boolean[][] findMineMapWithMine(GameMode mode, int[][] visible, int mineR, int mineC) {
         if (!inBounds(mineR, mineC) || visible[mineR][mineC] >= 0) {
             return null;
         }
@@ -48,11 +50,11 @@ final class MinesweeperSolver {
         return state.findSolutionWithMine(mineR, mineC);
     }
 
-    static final class Result {
-        final boolean[][] safe = new boolean[SIZE][SIZE];
-        int solutionCount;
+    public static final class Result {
+        public final boolean[][] safe = new boolean[SIZE][SIZE];
+        public int solutionCount;
 
-        boolean hasCertainSafe() {
+        public boolean hasCertainSafe() {
             for (int r = 0; r < SIZE; r++) {
                 for (int c = 0; c < SIZE; c++) {
                     if (safe[r][c]) {
@@ -145,11 +147,11 @@ final class MinesweeperSolver {
     }
 
 
-    static long bit(int r, int c) {
+    public static long bit(int r, int c) {
         return 1L << (r * SIZE + c);
     }
 
-    static boolean[][] maskToBoard(long mask) {
+    public static boolean[][] maskToBoard(long mask) {
         boolean[][] board = new boolean[SIZE][SIZE];
         for (int idx = 0; idx < SIZE * SIZE; idx++) {
             if (((mask >> idx) & 1L) == 1L) {
@@ -159,7 +161,7 @@ final class MinesweeperSolver {
         return board;
     }
 
-    static long buildAdjacentMask(long cellBit) {
+    public static long buildAdjacentMask(long cellBit) {
         int index = Long.numberOfTrailingZeros(cellBit);
         int r = index / SIZE;
         int c = index % SIZE;
@@ -179,13 +181,13 @@ final class MinesweeperSolver {
         return mask;
     }
 
-    static long buildDominoConnectionMask(int r1, int c1, int r2, int c2) {
+    public static long buildDominoConnectionMask(int r1, int c1, int r2, int c2) {
         long ownCells = bit(r1, c1) | bit(r2, c2);
         long mask = orthogonalNeighborMask(r1, c1) | orthogonalNeighborMask(r2, c2);
         return mask & ~ownCells;
     }
 
-    static long orthogonalNeighborMask(int r, int c) {
+    public static long orthogonalNeighborMask(int r, int c) {
         long mask = 0L;
         if (r > 0) {
             mask |= bit(r - 1, c);
@@ -202,7 +204,7 @@ final class MinesweeperSolver {
         return mask;
     }
 
-    static boolean isLegalTwoHRow(int mask) {
+    public static boolean isLegalTwoHRow(int mask) {
         for (int c = 0; c < SIZE; c++) {
             if (((mask >> c) & 1) == 0) {
                 continue;
@@ -216,7 +218,7 @@ final class MinesweeperSolver {
         return true;
     }
 
-    static int countAdjacentMines(boolean[][] mines, int r, int c) {
+    public static int countAdjacentMines(boolean[][] mines, int r, int c) {
         int count = 0;
         for (int i = 0; i < DR.length; i++) {
             int nr = r + DR[i];
@@ -228,7 +230,7 @@ final class MinesweeperSolver {
         return count;
     }
 
-    static boolean inBounds(int r, int c) {
+    public static boolean inBounds(int r, int c) {
         return r >= 0 && r < SIZE && c >= 0 && c < SIZE;
     }
 

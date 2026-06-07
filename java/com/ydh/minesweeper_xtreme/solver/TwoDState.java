@@ -1,8 +1,10 @@
-package com.ydh.minesweeper_xtreme;
+package com.ydh.minesweeper_xtreme.solver;
+
+import com.ydh.minesweeper_xtreme.game.GameMode;
 
 import java.util.ArrayList;
 
-import static com.ydh.minesweeper_xtreme.MinesweeperSolver.*;
+import static com.ydh.minesweeper_xtreme.solver.MinesweeperSolver.*;
 
 final class TwoDState {
     private static final int DOMINO_COUNT = GameMode.TWO_D.mines / 2;

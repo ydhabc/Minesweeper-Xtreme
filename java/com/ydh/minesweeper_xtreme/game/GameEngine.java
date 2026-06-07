@@ -1,4 +1,6 @@
-package com.ydh.minesweeper_xtreme;
+package com.ydh.minesweeper_xtreme.game;
+
+import com.ydh.minesweeper_xtreme.solver.MinesweeperSolver;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -6,8 +8,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-final class GameEngine {
-    static final int SIZE = 7;
+public final class GameEngine {
+    public static final int SIZE = 7;
 
     private static final int MAX_GENERATE_ATTEMPTS = 300;
     private static final long FAST_STEP_BONUS_MILLIS = 10000L;
@@ -18,34 +20,34 @@ final class GameEngine {
 
     private final Random random = new Random();
 
-    GameMode mode;
-    boolean stepTimerEnabled;
-    boolean expertModeEnabled;
-    boolean generated;
-    boolean gameOver;
-    boolean won;
-    boolean newRecord;
-    boolean paused;
-    boolean pauseUsed;
-    boolean[][] mines = new boolean[SIZE][SIZE];
-    boolean[][] revealed = new boolean[SIZE][SIZE];
-    boolean[][] flagged = new boolean[SIZE][SIZE];
-    boolean[][] skippedMine = new boolean[SIZE][SIZE];
-    int[][] numbers = new int[SIZE][SIZE];
-    int score;
-    int combo;
-    long globalStartMillis;
-    long lastActionMillis;
-    long lastStepStartMillis;
-    long pauseStartMillis;
-    long gameOverMillis;
-    String message = "点击任意格开始。";
+    public GameMode mode;
+    public boolean stepTimerEnabled;
+    public boolean expertModeEnabled;
+    public boolean generated;
+    public boolean gameOver;
+    public boolean won;
+    public boolean newRecord;
+    public boolean paused;
+    public boolean pauseUsed;
+    public boolean[][] mines = new boolean[SIZE][SIZE];
+    public boolean[][] revealed = new boolean[SIZE][SIZE];
+    public boolean[][] flagged = new boolean[SIZE][SIZE];
+    public boolean[][] skippedMine = new boolean[SIZE][SIZE];
+    public int[][] numbers = new int[SIZE][SIZE];
+    public int score;
+    public int combo;
+    public long globalStartMillis;
+    public long lastActionMillis;
+    public long lastStepStartMillis;
+    public long pauseStartMillis;
+    public long gameOverMillis;
+    public String message = "点击任意格开始。";
 
-    GameEngine() {
+    public GameEngine() {
         reset(GameMode.NORMAL, false, false);
     }
 
-    void reset(GameMode mode, boolean stepTimerEnabled, boolean expertModeEnabled) {
+    public void reset(GameMode mode, boolean stepTimerEnabled, boolean expertModeEnabled) {
         this.mode = mode;
         this.stepTimerEnabled = stepTimerEnabled;
         this.expertModeEnabled = expertModeEnabled;
@@ -74,7 +76,7 @@ final class GameEngine {
         }
     }
 
-    MoveResult reveal(int r, int c, long now) {
+    public MoveResult reveal(int r, int c, long now) {
         MoveResult result = new MoveResult();
         if (gameOver || paused || !inBounds(r, c) || flagged[r][c] || revealed[r][c] || skippedMine[r][c]) {
             return result;
@@ -149,7 +151,7 @@ final class GameEngine {
         return result;
     }
 
-    void toggleFlag(int r, int c) {
+    public void toggleFlag(int r, int c) {
         if (gameOver || paused || !generated || !inBounds(r, c) || revealed[r][c] || skippedMine[r][c]) {
             return;
         }
@@ -157,15 +159,15 @@ final class GameEngine {
         message = flagged[r][c] ? "已插旗。" : "已取消旗标。";
     }
 
-    void loseByTimeout() {
+    public void loseByTimeout() {
         loseByTimeout(System.currentTimeMillis());
     }
 
-    void loseByTimeout(long now) {
+    public void loseByTimeout(long now) {
         lose("单步倒计时结束，判负。", now);
     }
 
-    void togglePause(long now) {
+    public void togglePause(long now) {
         if (gameOver || !generated) {
             return;
         }
@@ -191,7 +193,7 @@ final class GameEngine {
         message = "游戏继续。";
     }
 
-    void pauseFromMenu(long now) {
+    public void pauseFromMenu(long now) {
         if (gameOver || !generated || paused) {
             return;
         }
@@ -201,7 +203,7 @@ final class GameEngine {
         message = "已返回主页，本局自动暂停。";
     }
 
-    void resumeFromMenu(long now) {
+    public void resumeFromMenu(long now) {
         if (!paused) {
             return;
         }
@@ -220,7 +222,7 @@ final class GameEngine {
         message = "游戏继续。";
     }
 
-    int[][] makeVisibleBoard() {
+    public int[][] makeVisibleBoard() {
         int[][] visible = new int[SIZE][SIZE];
         for (int r = 0; r < SIZE; r++) {
             for (int c = 0; c < SIZE; c++) {
@@ -236,7 +238,7 @@ final class GameEngine {
         return visible;
     }
 
-    int remainingMinesDisplay() {
+    public int remainingMinesDisplay() {
         int flags = 0;
         for (int r = 0; r < SIZE; r++) {
             for (int c = 0; c < SIZE; c++) {
@@ -248,11 +250,11 @@ final class GameEngine {
         return mode.mines - flags;
     }
 
-    int totalMinesDisplay() {
+    public int totalMinesDisplay() {
         return mode.mines;
     }
 
-    int elapsedSeconds(long now) {
+    public int elapsedSeconds(long now) {
         if (!generated || globalStartMillis == 0L) {
             return 0;
         }
@@ -265,7 +267,7 @@ final class GameEngine {
         return (int) ((now - globalStartMillis) / 1000L);
     }
 
-    int stepRemainingSeconds(long now) {
+    public int stepRemainingSeconds(long now) {
         if (!stepTimerEnabled || !generated || gameOver) {
             return 60;
         }
@@ -276,7 +278,7 @@ final class GameEngine {
         return Math.max(0, 60 - elapsed);
     }
 
-    void updateComboTimeout(long now) {
+    public void updateComboTimeout(long now) {
         if (!generated || gameOver || paused || lastActionMillis == 0L || combo == 0) {
             return;
         }

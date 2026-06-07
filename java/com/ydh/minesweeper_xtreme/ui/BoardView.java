@@ -1,4 +1,4 @@
-package com.ydh.minesweeper_xtreme;
+package com.ydh.minesweeper_xtreme.ui;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -11,6 +11,9 @@ import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+
+import com.ydh.minesweeper_xtreme.R;
+import com.ydh.minesweeper_xtreme.game.GameEngine;
 
 public class BoardView extends View {
     interface Listener {

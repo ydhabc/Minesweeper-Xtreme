@@ -1,6 +1,6 @@
-package com.ydh.minesweeper_xtreme;
+package com.ydh.minesweeper_xtreme.solver;
 
-import static com.ydh.minesweeper_xtreme.MinesweeperSolver.*;
+import static com.ydh.minesweeper_xtreme.solver.MinesweeperSolver.*;
 
 final class TwoGState {
     final int[][] visible;

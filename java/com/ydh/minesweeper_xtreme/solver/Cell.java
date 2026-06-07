@@ -1,4 +1,4 @@
-package com.ydh.minesweeper_xtreme;
+package com.ydh.minesweeper_xtreme.solver;
 
 final class Cell {
     final int r;
