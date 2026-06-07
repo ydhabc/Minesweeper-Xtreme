@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/menu_panel"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/bgDeep">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="24dp">
+
+        <RelativeLayout
+            android:id="@+id/top_control_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true">
+
+            <Button
+                android:id="@+id/btn_shop"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:text="🎨"
+                android:textSize="22sp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:padding="0dp" />
+
+            <Button
+                android:id="@+id/btn_audio"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:text="🔊"
+                android:textSize="22sp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:padding="0dp" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/top_control_bar"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/app_title"
+                android:textColor="@color/textWarm"
+                android:textSize="36sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:text="@string/app_subtitle"
+                android:textColor="@color/textMuted"
+                android:textSize="15sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="24dp"
+                android:orientation="vertical">
+
+                <Button
+                    android:id="@+id/btn_normal"
+                    style="@style/XtremeButton"
+                    android:text="普通模式" />
+
+                <Button
+                    android:id="@+id/btn_2h"
+                    style="@style/XtremeButton"
+                    android:text="变体一：水平双雷 (2H)" />
+
+                <Button
+                    android:id="@+id/btn_2d"
+                    style="@style/XtremeButton"
+                    android:text="变体二：骨牌雷 (2D)" />
+
+                <Button
+                    android:id="@+id/btn_2g"
+                    style="@style/XtremeButton"
+                    android:text="变体三：2x2雷块 (2G)" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_scores"
+                style="@style/QuietButton"
+                android:text="历史记录" />
+
+            <Button
+                android:id="@+id/btn_rules"
+                style="@style/QuietButton"
+                android:layout_marginTop="16dp"
+                android:text="查看规则" />
+
+        </LinearLayout>
+    </RelativeLayout>
+</ScrollView>

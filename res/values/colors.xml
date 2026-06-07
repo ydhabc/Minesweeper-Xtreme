@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+
+        <color name="colorPrimary">#3F51B5</color>
+        <color name="colorPrimaryDark">#303F9F</color>
+        <color name="colorAccent">#FF4081</color>
+        <color name="bgDeep">#151B24</color>
+        <color name="panelDeep">#263140</color>
+        <color name="buttonDeep">#344658</color>
+        <color name="buttonQuiet">#202A36</color>
+        <color name="optionChecked">#4A3F23</color>
+        <color name="optionIdle">#1D2834</color>
+        <color name="textWarm">#F5E9CF</color>
+        <color name="textMuted">#B7B0A1</color>
+        <color name="accentGold">#FFD369</color>
+
+</resources>

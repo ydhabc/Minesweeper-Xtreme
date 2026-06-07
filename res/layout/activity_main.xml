@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bgDeep"
+    tools:context="com.ydh.minesweeper_xtreme.ui.MainActivity">
+
+    <include layout="@layout/panel_menu" />
+
+    <include layout="@layout/panel_settings" />
+
+    <include layout="@layout/panel_rules" />
+
+    <include layout="@layout/panel_audio" />
+
+    <include layout="@layout/panel_scores" />
+
+    <include layout="@layout/panel_continue_game" />
+
+    <include layout="@layout/panel_game" />
+
+    <include layout="@layout/panel_result" />
+
+    <include layout="@layout/panel_shop" />
+
+    <LinearLayout
+        android:id="@+id/layout_splash"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/bgDeep"
+        android:gravity="center"
+        android:orientation="vertical">
+        <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminateTint="@color/accentGold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="正在初始化极限扫雷..."
+            android:textColor="@color/textMuted" />
+    </LinearLayout>
+</FrameLayout>
