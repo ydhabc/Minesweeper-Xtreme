@@ -29,20 +29,9 @@
         android:id="@+id/layout_splash"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/bgDeep"
+        android:background="@drawable/cover_view"
         android:gravity="center"
         android:orientation="vertical">
-        <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:indeterminateTint="@color/accentGold" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="正在初始化极限扫雷..."
-            android:textColor="@color/textMuted" />
     </LinearLayout>
 </FrameLayout>

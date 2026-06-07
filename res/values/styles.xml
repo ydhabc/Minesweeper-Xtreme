@@ -7,19 +7,19 @@
 </style>
 <style name="XtremeButton">
     <item name="android:layout_width">match_parent</item>
-    <item name="android:layout_height">56dp</item>
-    <item name="android:layout_marginTop">14dp</item>
+    <item name="android:layout_height">52dp</item>
+    <item name="android:layout_marginTop">10dp</item>
     <item name="android:background">@drawable/button_bg</item>
     <item name="android:textColor">@color/textWarm</item>
-    <item name="android:textSize">17sp</item>
+    <item name="android:textSize">16sp</item>
     <item name="android:textStyle">bold</item>
 </style>
 <style name="QuietButton">
     <item name="android:layout_width">match_parent</item>
-    <item name="android:layout_height">48dp</item>
+    <item name="android:layout_height">44dp</item>
     <item name="android:background">@drawable/quiet_button_bg</item>
     <item name="android:textColor">@color/textWarm</item>
-    <item name="android:textSize">15sp</item>
+    <item name="android:textSize">14sp</item>
 </style>
 <style name="SmallButton">
     <item name="android:layout_width">96dp</item>
