@@ -38,10 +38,14 @@ public final class SkinManager {
     public SkinManager(Context context) {
         this.context = context.getApplicationContext();
         prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        // 如果 SharedPreferences 中尚未记录硬币数，说明是首次运行，初始化为 1000
+        if (!prefs.contains(KEY_COINS)) {
+            prefs.edit().putInt(KEY_COINS, 1000).apply();
+        }
     }
 
     public int getCoins() {
-        return prefs.getInt(KEY_COINS, 0);
+        return prefs.getInt(KEY_COINS, 1000);
     }
 
     public void addCoins(int amount) {
@@ -152,7 +156,7 @@ public final class SkinManager {
     }
 
     /**
-     * 每局结束后根据分数发放硬币。
+     * 每局结束后根据分数发放硬币。测试测试
      * 规则：每 50 分 = 1 枚硬币，上限 50 枚/局。
      */
     public int earnCoinsForGame(int score, boolean won) {

@@ -156,7 +156,14 @@ public class BoardView extends View {
             } else if (skipped) {
                 drawCenteredText(canvas, "x", cellRect, cellSize * 0.48f, Color.WHITE, true);
             } else if (showMine) {
-                drawCenteredText(canvas, "*", cellRect, cellSize * 0.45f, Color.rgb(255, 107, 107), true);
+                // 尝试使用皮肤管理器提供的踩雷图片（若有），否则回退到 '*' 文本绘制
+                Bitmap boomBitmap = (skinManager != null) ? skinManager.getBoomTile() : null;
+                if (boomBitmap != null && !boomBitmap.isRecycled()) {
+                    Rect srcRect = new Rect(0, 0, boomBitmap.getWidth(), boomBitmap.getHeight());
+                    canvas.drawBitmap(boomBitmap, srcRect, cellRect, paint);
+                } else {
+                    drawCenteredText(canvas, "*", cellRect, cellSize * 0.45f, Color.rgb(255, 107, 107), true);
+                }
             } else if (revealed && engine.numbers[r][c] > 0) {
                 drawCenteredText(canvas, String.valueOf(engine.numbers[r][c]), cellRect,
                         cellSize * 0.42f, numberColor(engine.numbers[r][c]), true);

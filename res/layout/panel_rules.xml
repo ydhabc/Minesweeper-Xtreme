@@ -12,20 +12,28 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <Button
-            android:id="@+id/btn_rules_back"
-            style="@style/SmallButton"
-            android:text="返回" />
-
-        <TextView
-            android:id="@+id/txt_rules_title"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:text="规则说明"
-            android:textColor="@color/textWarm"
-            android:textSize="28sp"
-            android:textStyle="bold" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/txt_rules_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="规则说明"
+                android:textColor="@color/textWarm"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btn_rules_back"
+                style="@style/SmallButton"
+                android:layout_marginLeft="14dp"
+                android:text="返回" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/txt_rules_subtitle"
@@ -77,6 +85,11 @@
                 android:id="@+id/btn_rule_evaluation"
                 style="@style/XtremeButton"
                 android:text="开发者评价" />
+
+            <Button
+                android:id="@+id/btn_rule_shop"
+                style="@style/XtremeButton"
+                android:text="皮肤商店" />
 
             <Button
                 android:id="@+id/btn_rule_tips"

@@ -3,6 +3,7 @@
     android:id="@+id/scores_panel"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/bgDeep"
     android:fillViewport="true"
     android:visibility="gone">
 
@@ -12,167 +13,251 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <Button
-            android:id="@+id/btn_scores_back"
-            style="@style/SmallButton"
-            android:text="返回" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="历史记录"
+                android:textColor="@color/textWarm"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btn_scores_back"
+                style="@style/SmallButton"
+                android:layout_marginLeft="14dp"
+                android:text="返回" />
+        </LinearLayout>
+
+        <!--<TextView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginTop="6dp"-->
+            <!--android:text="每个模式会单独保存自己的最高分。"-->
+            <!--android:textColor="@color/textMuted"-->
+            <!--android:textSize="14sp" />-->
+
+        <!--<LinearLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginTop="18dp"-->
+            <!--android:background="@drawable/panel_bg"-->
+            <!--android:orientation="vertical"-->
+            <!--android:padding="16dp">-->
+
+            <!--<TextView-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="记录条件"-->
+                <!--android:textColor="@color/accentGold"-->
+                <!--android:textSize="18sp"-->
+                <!--android:textStyle="bold" />-->
+
+            <!--<TextView-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginTop="8dp"-->
+                <!--android:lineSpacingExtra="4dp"-->
+                <!--android:text="单步计时 + 专家模式 + 胜利 + 未暂停"-->
+                <!--android:textColor="@color/textWarm"-->
+                <!--android:textSize="16sp"-->
+                <!--android:textStyle="bold" />-->
+
+            <!--<TextView-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginTop="4dp"-->
+                <!--android:text="满足条件后，本局分数才会参与历史记录。"-->
+                <!--android:textColor="@color/textMuted"-->
+                <!--android:textSize="13sp" />-->
+        <!--</LinearLayout>-->
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:text="历史最好记录"
-            android:textColor="@color/textWarm"
-            android:textSize="28sp"
+            android:layout_marginTop="20dp"
+            android:text="模式记录"
+            android:textColor="@color/accentGold"
+            android:textSize="18sp"
             android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="只记录 “单步计时 + 专家模式 + 未暂停” 的胜局。"
-            android:textColor="@color/textMuted"
-            android:textSize="14sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/panel_bg"
-                android:orientation="vertical"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
                 android:padding="16dp"
                 android:layout_marginBottom="12dp">
 
-                <TextView
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="普通模式"
-                    android:textColor="@color/accentGold"
-                    android:textSize="17sp"
-                    android:textStyle="bold" />
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="普通模式"
+                        android:textColor="@color/accentGold"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/txt_score_normal_note"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:textColor="@color/textMuted"
+                        android:textSize="13sp" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/txt_score_normal"
-                    android:layout_width="match_parent"
+                    android:layout_width="108dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:gravity="right|center_vertical"
                     android:textColor="@color/textWarm"
-                    android:textSize="36sp"
+                    android:textSize="24sp"
                     android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/txt_score_normal_note"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textColor="@color/textMuted"
-                    android:textSize="13sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/panel_bg"
-                android:orientation="vertical"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
                 android:padding="16dp"
                 android:layout_marginBottom="12dp">
 
-                <TextView
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="变体一：水平双雷 (2H)"
-                    android:textColor="@color/accentGold"
-                    android:textSize="17sp"
-                    android:textStyle="bold" />
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="变体一：水平双雷 (2H)"
+                        android:textColor="@color/accentGold"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/txt_score_2h_note"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:textColor="@color/textMuted"
+                        android:textSize="13sp" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/txt_score_2h"
-                    android:layout_width="match_parent"
+                    android:layout_width="108dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:gravity="right|center_vertical"
                     android:textColor="@color/textWarm"
-                    android:textSize="36sp"
+                    android:textSize="24sp"
                     android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/txt_score_2h_note"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textColor="@color/textMuted"
-                    android:textSize="13sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/panel_bg"
-                android:orientation="vertical"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
                 android:padding="16dp"
                 android:layout_marginBottom="12dp">
 
-                <TextView
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="变体二：骨牌雷 (2D)"
-                    android:textColor="@color/accentGold"
-                    android:textSize="17sp"
-                    android:textStyle="bold" />
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="变体二：骨牌雷 (2D)"
+                        android:textColor="@color/accentGold"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/txt_score_2d_note"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:textColor="@color/textMuted"
+                        android:textSize="13sp" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/txt_score_2d"
-                    android:layout_width="match_parent"
+                    android:layout_width="108dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:gravity="right|center_vertical"
                     android:textColor="@color/textWarm"
-                    android:textSize="36sp"
+                    android:textSize="24sp"
                     android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/txt_score_2d_note"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textColor="@color/textMuted"
-                    android:textSize="13sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/panel_bg"
-                android:orientation="vertical"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
                 android:padding="16dp">
 
-                <TextView
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="变体三：2x2雷块 (2G)"
-                    android:textColor="@color/accentGold"
-                    android:textSize="17sp"
-                    android:textStyle="bold" />
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="变体三：2x2雷块 (2G)"
+                        android:textColor="@color/accentGold"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/txt_score_2g_note"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:textColor="@color/textMuted"
+                        android:textSize="13sp" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/txt_score_2g"
-                    android:layout_width="match_parent"
+                    android:layout_width="108dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:gravity="right|center_vertical"
                     android:textColor="@color/textWarm"
-                    android:textSize="36sp"
+                    android:textSize="24sp"
                     android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/txt_score_2g_note"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textColor="@color/textMuted"
-                    android:textSize="13sp" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

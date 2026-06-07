@@ -16,11 +16,20 @@
         android:layout_marginBottom="12dp"
         android:text="看雷图" />
 
-    <LinearLayout
+    <ScrollView
         android:id="@+id/result_summary_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingRight="8dp">
 
         <TextView
             android:id="@+id/txt_result_title"
@@ -32,17 +41,85 @@
             android:textSize="36sp"
             android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/txt_result_body"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:background="@drawable/panel_bg"
-            android:gravity="center"
-            android:lineSpacingExtra="6dp"
-            android:padding="24dp"
-            android:textColor="@color/textWarm"
-            android:textSize="18sp" />
+            android:orientation="vertical"
+            android:padding="18dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="本局概况"
+                android:textColor="@color/accentGold"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txt_result_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="4dp"
+                android:textColor="@color/textWarm"
+                android:textSize="17sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/result_message_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/panel_bg"
+            android:orientation="vertical"
+            android:padding="18dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="结算信息"
+                android:textColor="@color/accentGold"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txt_result_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="4dp"
+                android:textColor="@color/textWarm"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/result_evaluation_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/panel_bg"
+            android:orientation="vertical"
+            android:padding="18dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="开发者评价"
+                android:textColor="@color/accentGold"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txt_result_evaluation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="4dp"
+                android:textColor="@color/textWarm"
+                android:textSize="16sp" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/btn_result_restart"
@@ -54,5 +131,6 @@
             android:id="@+id/btn_result_menu"
             style="@style/XtremeButton"
             android:text="返回主页" />
-    </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@android:color/transparent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/panel_bg"
+        android:orientation="vertical"
+        android:padding="18dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="设置"
+            android:textColor="@color/textWarm"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="调整声音，或进入皮肤商店管理套装。"
+            android:textColor="@color/textMuted"
+            android:textSize="14sp" />
+
+        <!--<TextView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginTop="18dp"-->
+            <!--android:text="选项"-->
+            <!--android:textColor="@color/accentGold"-->
+            <!--android:textSize="18sp"-->
+            <!--android:textStyle="bold" />-->
+
+        <Button
+            android:id="@+id/btn_popup_audio"
+            style="@style/XtremeButton"
+            android:layout_marginTop="12dp"
+            android:text="音频设置" />
+
+        <Button
+            android:id="@+id/btn_popup_shop"
+            style="@style/XtremeButton"
+            android:text="皮肤商店" />
+
+        <Button
+            android:id="@+id/btn_popup_close"
+            style="@style/QuietButton"
+            android:layout_marginTop="18dp"
+            android:text="关闭" />
+    </LinearLayout>
+
+</LinearLayout>

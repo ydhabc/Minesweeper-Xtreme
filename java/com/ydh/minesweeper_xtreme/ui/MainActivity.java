@@ -1,11 +1,16 @@
 package com.ydh.minesweeper_xtreme.ui;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.widget.ImageButton;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -69,6 +74,8 @@ public class MainActivity extends Activity implements BoardView.Listener {
     private TextView messageText;
     private TextView resultTitleText;
     private TextView resultBodyText;
+    private TextView resultMessageText;
+    private TextView resultEvaluationText;
     private TextView shopCoinsText;      // 新增：商店内硬币显示
 //    private TextView menuCoinsText;      // 新增：主菜单硬币显示
 
@@ -82,6 +89,7 @@ public class MainActivity extends Activity implements BoardView.Listener {
     // ── 按钮 ──
     private View resultPanel;
     private View resultSummaryContainer;
+    private View resultEvaluationCard;
     private Button gameBackButton;
     private Button restartButton;
     private Button pauseButton;
@@ -89,6 +97,7 @@ public class MainActivity extends Activity implements BoardView.Listener {
     private Button resultRestartButton;
     private Button resultMenuButton;
     private Button resultToggleMapButton;
+    private ImageButton settingsToggleButton;
 
 
     private LinearLayout skinCardsContainer;
@@ -209,6 +218,40 @@ public class MainActivity extends Activity implements BoardView.Listener {
         refreshGame();
     }
 
+    @Override
+    public void onBackPressed() {
+        if (rulesPanel.getVisibility() == View.VISIBLE) {
+            if (rulesDetailContainer.getVisibility() == View.VISIBLE) {
+                showRulesIndex();
+            } else {
+                showMenu();
+            }
+            return;
+        }
+        if (resultPanel.getVisibility() == View.VISIBLE) {
+            if (resultMineMapVisible) {
+                resultMineMapVisible = false;
+                updateResultDisplayMode();
+            } else {
+                showMenu();
+            }
+            return;
+        }
+        if (gamePanel.getVisibility() == View.VISIBLE) {
+            leaveGameToMenu();
+            return;
+        }
+        if (settingsPanel.getVisibility() == View.VISIBLE
+                || audioPanel.getVisibility() == View.VISIBLE
+                || scoresPanel.getVisibility() == View.VISIBLE
+                || continuePanel.getVisibility() == View.VISIBLE
+                || shopPanel.getVisibility() == View.VISIBLE) {
+            showMenu();
+            return;
+        }
+        super.onBackPressed();
+    }
+
     private void bindViews() {
         menuPanel             = findViewById(R.id.menu_panel);
         settingsPanel         = findViewById(R.id.settings_panel);
@@ -246,6 +289,8 @@ public class MainActivity extends Activity implements BoardView.Listener {
         messageText           = (TextView) findViewById(R.id.txt_message);
         resultTitleText       = (TextView) findViewById(R.id.txt_result_title);
         resultBodyText        = (TextView) findViewById(R.id.txt_result_body);
+        resultMessageText     = (TextView) findViewById(R.id.txt_result_message);
+        resultEvaluationText  = (TextView) findViewById(R.id.txt_result_evaluation);
         shopCoinsText         = (TextView) findViewById(R.id.txt_shop_coins);     // 新增
 //        menuCoinsText         = (TextView) findViewById(R.id.txt_menu_coins);     // 新增
 
@@ -257,6 +302,7 @@ public class MainActivity extends Activity implements BoardView.Listener {
 
         resultPanel             = findViewById(R.id.result_panel);
         resultSummaryContainer  = findViewById(R.id.result_summary_container);
+        resultEvaluationCard    = findViewById(R.id.result_evaluation_card);
         gameBackButton          = (Button) findViewById(R.id.btn_game_back);
         restartButton           = (Button) findViewById(R.id.btn_restart);
         pauseButton             = (Button) findViewById(R.id.btn_pause);
@@ -264,6 +310,7 @@ public class MainActivity extends Activity implements BoardView.Listener {
         resultRestartButton     = (Button) findViewById(R.id.btn_result_restart);
         resultMenuButton        = (Button) findViewById(R.id.btn_result_menu);
         resultToggleMapButton   = (Button) findViewById(R.id.btn_result_toggle_map);
+        settingsToggleButton    = (ImageButton) findViewById(R.id.btn_settings_toggle);
         boardView               = (BoardView) findViewById(R.id.board_view);
         skinCardsContainer      = (LinearLayout) findViewById(R.id.skin_cards_container); // 新增
     }
@@ -307,16 +354,10 @@ public class MainActivity extends Activity implements BoardView.Listener {
                 showRulesPanel();
             }
         });
-        ((Button) findViewById(R.id.btn_audio)).setOnClickListener(new View.OnClickListener() {
+        settingsToggleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showAudioPanel();
-            }
-        });
-        ((Button) findViewById(R.id.btn_shop)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showShopPanel(); // 新增
+                showSettingsPopup();
             }
         });
 
@@ -418,6 +459,12 @@ public class MainActivity extends Activity implements BoardView.Listener {
             @Override
             public void onClick(View v) {
                 showRuleDetail("开发者评价", evaluationRulesText());
+            }
+        });
+        ((Button) findViewById(R.id.btn_rule_shop)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showRuleDetail("皮肤商店", shopRulesText());
             }
         });
         ((Button) findViewById(R.id.btn_rule_tips)).setOnClickListener(new View.OnClickListener() {
@@ -524,9 +571,9 @@ public class MainActivity extends Activity implements BoardView.Listener {
             // 卡片容器
             LinearLayout card = new LinearLayout(this);
             card.setOrientation(LinearLayout.HORIZONTAL);
-            card.setPadding(24, 20, 24, 20);
-            int cardColor = current ? Color.rgb(40, 60, 90) : Color.rgb(28, 34, 45);
-            card.setBackgroundColor(cardColor);
+            card.setGravity(android.view.Gravity.CENTER_VERTICAL);
+            card.setPadding(18, 16, 18, 16);
+            card.setBackgroundResource(R.drawable.panel_bg);
             LinearLayout.LayoutParams cardParams =
                     new LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.MATCH_PARENT,
@@ -542,21 +589,25 @@ public class MainActivity extends Activity implements BoardView.Listener {
             infoBox.setLayoutParams(infoParams);
 
             TextView nameText = new TextView(this);
-            nameText.setText("套装 " + skinId + "  " + name + (current ? "  ✓ 当前" : ""));
-            nameText.setTextColor(Color.WHITE);
+            nameText.setText("套装 " + skinId + "  " + name);
+            nameText.setTextColor(getResources().getColor(current ? R.color.accentGold : R.color.textWarm));
             nameText.setTextSize(16f);
+            nameText.setTypeface(null, android.graphics.Typeface.BOLD);
             infoBox.addView(nameText);
 
             TextView statusText = new TextView(this);
-            if (skinId == 1) {
+            if (current) {
+                statusText.setText("当前装备");
+            } else if (skinId == 1) {
                 statusText.setText("默认免费");
             } else if (owned) {
                 statusText.setText("已拥有");
             } else {
                 statusText.setText("价格：" + currentPrice + " 硬币");
             }
-            statusText.setTextColor(Color.rgb(180, 190, 210));
+            statusText.setTextColor(getResources().getColor(R.color.textMuted));
             statusText.setTextSize(13f);
+            statusText.setPadding(0, 6, 0, 0);
             infoBox.addView(statusText);
 
             card.addView(infoBox);
@@ -565,9 +616,13 @@ public class MainActivity extends Activity implements BoardView.Listener {
             Button actionBtn = new Button(this);
             LinearLayout.LayoutParams btnParams =
                     new LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.WRAP_CONTENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT);
+                            dp(96),
+                            dp(44));
+            btnParams.setMargins(dp(14), 0, 0, 0);
             actionBtn.setLayoutParams(btnParams);
+            actionBtn.setBackgroundResource(R.drawable.quiet_button_bg);
+            actionBtn.setTextColor(getResources().getColor(R.color.textWarm));
+            actionBtn.setTextSize(14f);
 
             if (current) {
                 actionBtn.setText("已装备");
@@ -606,13 +661,10 @@ public class MainActivity extends Activity implements BoardView.Listener {
             skinCardsContainer.addView(card);
         }
 
-        // 底部说明
-        TextView hint = new TextView(this);
-        hint.setText("每局游戏结束后可获得硬币（胜利更多）。\n每 50 分 = 1 硬币，每局上限 50 枚。");
-        hint.setTextColor(Color.rgb(140, 150, 170));
-        hint.setTextSize(12f);
-        hint.setPadding(8, 16, 8, 0);
-        skinCardsContainer.addView(hint);
+    }
+
+    private int dp(int value) {
+        return (int) (value * getResources().getDisplayMetrics().density + 0.5f);
     }
 
 
@@ -627,7 +679,7 @@ public class MainActivity extends Activity implements BoardView.Listener {
 
     private void openSettings(GameMode mode) {
         selectedMode = mode;
-        settingsModeText.setText("当前模式：" + mode.title);
+        settingsModeText.setText(mode.title);
         ruleText.setText(mode.rule);
         hideAllPanels();
         settingsPanel.setVisibility(View.VISIBLE);
@@ -699,15 +751,17 @@ public class MainActivity extends Activity implements BoardView.Listener {
         resultShown = true;
         resultMineMapVisible = false;
 
-       int earned = skinManager.earnCoinsForGame(engine.score, engine.won);
+        long now = System.currentTimeMillis();
+        int earned = skinManager.earnCoinsForGame(engine.score, engine.won);
         String coinMsg = earned > 0 ? "\n获得 " + earned + " 硬币！（共 " + skinManager.getCoins() + "）" : "";
 
         resultTitleText.setText(engine.won ? "挑战成功" : "挑战失败");
         resultBodyText.setText("模式：" + engine.mode.title
                 + "\n分数：" + engine.score
-                + "\n用时：" + engine.elapsedSeconds(System.currentTimeMillis()) + " 秒"
-                + "\n\n" + engine.message
-                + coinMsg);
+                + "\n用时：" + engine.elapsedSeconds(now) + " 秒");
+        resultMessageText.setText(engine.message + coinMsg);
+        resultEvaluationText.setText(resultEvaluationMessage());
+        resultEvaluationCard.setVisibility(View.VISIBLE);
         resultPanel.setVisibility(View.VISIBLE);
         updateResultDisplayMode();
         boardView.invalidate();
@@ -771,6 +825,46 @@ public class MainActivity extends Activity implements BoardView.Listener {
         audioPanel.setVisibility(View.VISIBLE);
         updateVolumeLabels();
         syncMusicScene();
+    }
+
+    private void showSettingsPopup() {
+        View popupView = LayoutInflater.from(this).inflate(R.layout.dialog_settings_popup, null, false);
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(popupView);
+
+        Button audioButton = (Button) popupView.findViewById(R.id.btn_popup_audio);
+        Button shopButton = (Button) popupView.findViewById(R.id.btn_popup_shop);
+        Button closeButton = (Button) popupView.findViewById(R.id.btn_popup_close);
+
+        audioButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                showAudioPanel();
+            }
+        });
+        shopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                showShopPanel();
+            }
+        });
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+        dialog.show();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
     }
 
     private void hideAllPanels() {
@@ -884,10 +978,14 @@ public class MainActivity extends Activity implements BoardView.Listener {
                 + "4. 同一分数段可能会触发不同开发者的评价，可以多挑战几次。";
     }
 
+    private String shopRulesText() {
+        return "每局游戏结束后可获得硬币（胜利更多）。\n"
+                + "每 50 分 = 1 硬币，每局上限 50 枚。";
+    }
+
     private String tipRulesText() {
         return "主页返回游戏时，会先自动进入暂停。\n"
-                + "再次点同一模式，可以选择继续游戏或用相同设置重新开始。\n"
-                + "皮肤商店：每局游戏后自动发放硬币，用于解锁更多皮肤。";
+                + "再次点同一模式，可以选择继续游戏或用相同设置重新开始。";
     }
 
     private void initAudioSettings() {
@@ -943,14 +1041,24 @@ public class MainActivity extends Activity implements BoardView.Listener {
             return;
         }
         int best = scores.getInt(engine.mode.highScoreKey(), 0);
-        String suffix = "\n" + evaluation(engine.score);
         if (engine.score > best) {
             scores.edit().putInt(engine.mode.highScoreKey(), engine.score).apply();
             engine.newRecord = true;
-            engine.message = engine.message + "\n新纪录！" + suffix;
-        } else {
-            engine.message = engine.message + suffix;
+            engine.message = engine.message + "\n新纪录！";
         }
+    }
+
+    private String resultEvaluationMessage() {
+        if (!engine.won) {
+            return "本局未通关，暂不触发开发者评价。";
+        }
+        if (!engine.stepTimerEnabled || !engine.expertModeEnabled) {
+            return "需要同时开启单步计时和专家模式，胜利后才会触发开发者评价。";
+        }
+        if (engine.pauseUsed) {
+            return "本局使用过暂停，不触发开发者评价。";
+        }
+        return evaluation(engine.score);
     }
 
     private String evaluation(int score) {
