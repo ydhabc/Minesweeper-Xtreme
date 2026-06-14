@@ -132,13 +132,10 @@ public class BoardView extends View {
         boolean flagged  = engine.flagged[r][c];
         boolean skipped  = engine.skippedMine[r][c];
 
-        // 💡 核心逻辑：获取当前激活的皮肤编号
         int currentSkinId = (skinManager != null) ? skinManager.getCurrentSkin() : 1;
 
         if (currentSkinId == 4) {
-            // ═══════════════════════════════════════════════════════════════
-            // 🌟 皮肤 4：走你原本优雅的“纯色 Canvas 绘制版”
-            // ═══════════════════════════════════════════════════════════════
+
             paint.setStyle(Paint.Style.FILL);
             if (revealed) {
                 paint.setColor(Color.rgb(232, 224, 204));
@@ -169,9 +166,7 @@ public class BoardView extends View {
                         cellSize * 0.42f, numberColor(engine.numbers[r][c]), true);
             }
         } else {
-            // ═══════════════════════════════════════════════════════════════
-            // 🖼️ 皮肤 1, 2, 3：走 SkinManager 的图片资源解码加载版
-            // ═══════════════════════════════════════════════════════════════
+
             Bitmap tileBitmap = null;
 
             if (flagged) {

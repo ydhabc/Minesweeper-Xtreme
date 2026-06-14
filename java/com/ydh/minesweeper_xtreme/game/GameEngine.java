@@ -110,7 +110,7 @@ public final class GameEngine {
 
         if (mines[r][c]) {
             if (hasCertainSafe) {
-                lose("当前局面存在确定安全格，但点到了雷，判负。", now);
+                lose("你点到了雷，判负。", now);
                 result.lost = true;
                 return result;
             }

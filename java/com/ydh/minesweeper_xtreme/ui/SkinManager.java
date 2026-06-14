@@ -40,7 +40,7 @@ public final class SkinManager {
         prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         // 如果 SharedPreferences 中尚未记录硬币数，说明是首次运行，初始化为 1000
         if (!prefs.contains(KEY_COINS)) {
-            prefs.edit().putInt(KEY_COINS, 1000).apply();
+            prefs.edit().putInt(KEY_COINS, 2100).apply();
         }
     }
 
